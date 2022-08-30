@@ -1,0 +1,68 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Main
+
+RWStructuredBuffer<float3> _Positions;
+
+uint _Resolution;
+float _GrassSpacing;
+float _JitterStrength;
+float3 _PlaneCentre;
+
+Texture2D HeightMap; 
+SamplerState samplerHeightMap;
+
+uint _2DIdTo1D(uint3 id){
+
+    return id.x + id.y * _Resolution;
+
+}
+
+//float float rand(float2 co)
+//{
+//    float a = 12.9898;
+//    float b = 78.233;
+//    float c = 43758.5453;
+//    float dt= dot(co.xy ,vec2(a,b));
+//    float sn= mod(dt,3.14);
+//    return fract(sin(sn) * c);
+//}
+
+float2 hashwithoutsine22(float2 p)
+{
+	float3 p3 = frac(float3(p.xyx) * float3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yzx+33.33);
+    return frac((p3.xx+p3.yz)*p3.zy);
+}
+
+[numthreads(8,8,1)]
+void Main (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+
+
+
+    if (id.x < _Resolution && id.y < _Resolution){
+
+        //float3 planeOffset = float3(_PlaneCentre.x, 0, _PlaneCentre.z);
+
+
+        float3 position = float3(id.x,0,id.y)*_GrassSpacing - _PlaneCentre;
+
+        float2 jitter = ((hashwithoutsine22(id.xy)*2)-1 ) * _JitterStrength;
+        //float jitterY = rand(id.y,0,id.x);
+
+        position.xz += jitter;
+
+        float2 worldUV = position.xz;
+
+        worldUV = worldUV * (1/float2(500,500));
+
+        float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0);
+
+        position.y += height*147.44;
+
+        _Positions[_2DIdTo1D(id)] = position;
+    }
+
+    //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+}
