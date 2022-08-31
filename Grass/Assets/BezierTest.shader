@@ -8,6 +8,7 @@ Shader "Unlit/BezierTest"
         _P2 ("Point 2", Vector) = (0, 0, 0, 0)
         _P3 ("Point 3", Vector) = (0, 0, 0, 0)
         _Width("Width", Range (0, 1)) = 1
+        _TaperAmount("_TaperAmount", Range (0, 1)) = 1
     }
     SubShader
     {
@@ -44,7 +45,7 @@ Shader "Unlit/BezierTest"
             float3 _P3;
 
             float _Width;
-
+            float _TaperAmount;
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
@@ -59,14 +60,16 @@ Shader "Unlit/BezierTest"
 
             v2f vert (appdata_full v)
             {
-                v.color = pow(v.color,2.23);
+                //v.color = pow(v.color,2.23);
                 float t = v.color.r;
                 float side = v.color.g;
 
                 side = (side*2)-1;
 
-                v.vertex.z += side * _Width;
+                float width = (_Width/20) * (1-_TaperAmount*t);
 
+                v.vertex.z = side * width;
+                //v.vertex.z = side * (_Width/10);
                 //float3 newPos = cubicBezier(_P0, _P1,_P2,_P3, t);
 
                 //v.vertex.xyz = newPos;
