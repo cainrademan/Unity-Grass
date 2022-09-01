@@ -78,8 +78,8 @@ Material:
     - _TaperAmount: 0.45
     - _Test: 0.019
     - _UVSec: 0
-    - _WaveAmplitude: 0.062
-    - _WavePower: 2
+    - _WaveAmplitude: 0.037
+    - _WavePower: 1
     - _WaveSpeed: 3.51
     - _Width: 0.011
     - _ZWrite: 1
@@ -88,6 +88,6 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _P0: {r: -0.00009999993, g: 0, b: 0, a: 0}
     - _P1: {r: -0.00032999998, g: 0.00433, b: -1.8927031e-10, a: 0}
-    - _P2: {r: 0.00027, g: 0.00833, b: -3.6411585e-10, a: 0}
-    - _P3: {r: 0.0034599998, g: 0.01, b: -4.3711387e-10, a: 0}
+    - _P2: {r: -0.00112, g: 0.010659999, b: -4.659634e-10, a: 0}
+    - _P3: {r: 0.0034599998, g: 0.011879999, b: -5.192913e-10, a: 0}
   m_BuildTextureStacks: []
