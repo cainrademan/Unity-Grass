@@ -1,7 +1,21 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel Main
 
-RWStructuredBuffer<float3> _Positions;
+
+
+struct GrassBlade {
+
+    float3 position;
+    float2 facing;
+    float hash;
+    float height;
+    float width;
+    float tilt;
+    float bend;
+    
+};
+
+RWStructuredBuffer<GrassBlade> _GrassBlades;
 
 uint _Resolution;
 float _GrassSpacing;
@@ -26,6 +40,18 @@ uint _2DIdTo1D(uint3 id){
 //    float sn= mod(dt,3.14);
 //    return fract(sin(sn) * c);
 //}
+
+/*
+Output properties:
+float3 position
+float2 facing
+float hash
+float Height (sample from texture?)
+float width
+float tilt
+float bend
+
+*/
 
 float2 hashwithoutsine22(float2 p)
 {
@@ -59,9 +85,20 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0);
 
-        position.y += height*147.44;
+        position.y += height*72.32;
 
-        _Positions[_2DIdTo1D(id)] = position;
+        GrassBlade blade;
+
+        blade.position = position;
+        blade.facing = float2(1,0);
+        blade.hash = 1;
+        blade.height = 1;
+        blade.width = 0.1;
+        blade.tilt = 1;
+        blade.bend = 1;
+
+
+        _GrassBlades[_2DIdTo1D(id)] = blade;
     }
 
     //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);

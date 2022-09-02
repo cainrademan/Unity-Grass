@@ -236,10 +236,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff38b2270b4526499416b006451d35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 1000
+  resolution: 100
   plane: {fileID: 57059746}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
-  prefab: {fileID: 3780012296066074032, guid: 8effe25f44b087640abc08d4c72c3b72, type: 3}
   heightMap: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
@@ -752,7 +751,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 39, y: 36.1, z: 143.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -876,7 +875,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169331050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.5765324, y: 23.64, z: 9.211227}
+  m_LocalPosition: {x: 39, y: 32.32, z: 170.62}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []

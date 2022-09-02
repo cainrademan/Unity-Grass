@@ -19,10 +19,21 @@ Shader "Unlit/Grass"
 
             #include "UnityCG.cginc"
 
+            struct GrassBlade {
 
+                float3 position;
+                float2 facing;
+                float hash;
+                float height;
+                float width;
+                float tilt;
+                float bend;
+        };
+    
+        
             //StructuredBuffer<float3> _Positions;
 
-            StructuredBuffer<float3> PositionsBuffer;
+            StructuredBuffer<GrassBlade> _GrassBlades;
             StructuredBuffer<int> Triangles;
             StructuredBuffer<float3> Positions;
 
@@ -49,8 +60,14 @@ Shader "Unlit/Grass"
 
                 int positionIndex = Triangles[vertex_id];
                 float3 position = Positions[positionIndex];
-                //add sphere position
-                position += PositionsBuffer[instance_id];
+
+                GrassBlade blade = _GrassBlades[instance_id];
+
+                position += blade.position;
+                //position += PositionsBuffer[instance_id];
+
+
+
                 //convert the vertex position from world space to clip space
                 // mul(UNITY_MATRIX_VP, float4(position, 1));
 

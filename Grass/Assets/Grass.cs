@@ -21,13 +21,13 @@ public class Grass : MonoBehaviour
 
     //ComputeBuffer meshTriangles;
     //ComputeBuffer meshPositions;
-    ComputeBuffer positionsBuffer;
+    ComputeBuffer grassBladesBuffer;
     ComputeBuffer meshTriangles;
     ComputeBuffer meshPositions;
-    public GameObject prefab;
+    //public GameObject prefab;
 
     static readonly int
-        positionsId = Shader.PropertyToID("_Positions"),
+        grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
         grassSpacingId = Shader.PropertyToID("_GrassSpacing"),
         planeCentreId = Shader.PropertyToID("_PlaneCentre"),
@@ -49,7 +49,6 @@ public class Grass : MonoBehaviour
     [SerializeField]
     Mesh mesh;
 
-    Vector3[] output;
     Bounds bounds;
     void UpdateGPUParams()
     {
@@ -80,19 +79,19 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat(jitterStrengthId, jitterStrength);
         computeShader.SetVector(planeCentreId, PlaneCentre);
         computeShader.SetTexture(0, heightMapId, heightMap);
-        computeShader.SetBuffer(0, positionsId, positionsBuffer);
+        computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
 
         int groups = Mathf.CeilToInt(resolution / 8f);
         computeShader.Dispatch(0, groups, groups, 1);
 
-        material.SetBuffer("PositionsBuffer", positionsBuffer);
+        material.SetBuffer("_GrassBlades", grassBladesBuffer);
 
     }
 
     void Awake()
     {
         numInstances = resolution * resolution;
-        positionsBuffer = new ComputeBuffer(resolution * resolution, 3 * 4);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
 
 
     }
@@ -170,7 +169,7 @@ public class Grass : MonoBehaviour
 
     void OnDestroy()
     {
-        positionsBuffer.Dispose();
+        grassBladesBuffer.Dispose();
         meshTriangles.Dispose();
         meshPositions.Dispose();
     }

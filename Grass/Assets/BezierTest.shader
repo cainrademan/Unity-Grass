@@ -12,6 +12,8 @@ Shader "Unlit/BezierTest"
         _WaveAmplitude("_WaveAmplitude", Range (0, 1)) = 1
         _WaveSpeed("_WaveSpeed", Float) = 1
         _WavePower("_WavePower", Float) = 1
+        _SinOffsetRange("_SinOffsetRange", Range (0, 1)) = 1
+        _LerpWaveGeneration("_LerpWaveGeneration", Range (0, 1)) = 1
     }
     SubShader
     {
@@ -41,7 +43,8 @@ Shader "Unlit/BezierTest"
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR0;
             };
-
+            float _SinOffsetRange;
+            float _LerpWaveGeneration;
             float3 _P0;
             float3 _P1;
             float3 _P2;
@@ -94,44 +97,111 @@ Shader "Unlit/BezierTest"
 
                 float t = v.color.r;
                 float side = v.color.g;
-
                 side = (side*2)-1;
 
 
-                //_P2.x += (_WaveAmplitude/10) *sin(_Time* _WaveSpeed) *pow(t,_WavePower); 
+                float3 bladeDir = normalize(_P3-float3(0,0,0));
 
-                //_P3.x += (_WaveAmplitude/60) *cos(_Time* _WaveSpeed*2) *pow(t,_WavePower); 
+                float3 bezCtrlOffsetDir = -normalize(cross(bladeDir, float3(0,0,1)));
+
+
+
+                //Deprecated
+                //float pOffset = pow(t,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +t*2*3.1415); 
+                //Current best
+                //float pOffset = pow(t,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +t*2*3.1415*_SinOffsetRange); 
+                //float p2Offset = pow(t,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +t*2*3.1415); 
+                //float p3Offset = pow(t,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +t*2*3.1415); 
+
+                //Potential funkey method
+                //float tPower = 1;
+
+                //float p1AmplitudeModifier = lerp(pow(p1Weight,_WavePower),pow(t,tPower), _LerpWaveGeneration);
+                //float p2AmplitudeModifier = lerp(pow(p2Weight,_WavePower),pow(t,tPower), _LerpWaveGeneration);
+                //float p3AmplitudeModifier = lerp(pow(p3Weight,_WavePower),pow(t,tPower), _LerpWaveGeneration);
+
+                ////float pOffset = pow(p0Weight,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +p0Weight*2*3.1415*_SinOffsetRange); 
+                //float p1ffset = p1AmplitudeModifier* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                //float p2ffset = p2AmplitudeModifier* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
+                //float p3ffset = p3AmplitudeModifier* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+
+                ////_P0 += bezCtrlOffsetDir*  pOffset;
+                //_P1 += bezCtrlOffsetDir*  p1ffset;
+                //_P2 += bezCtrlOffsetDir*  p2ffset;
+                //_P3 += bezCtrlOffsetDir*  p3ffset;
+
+                //Current 2nd best
+                //float pOffset = pow(t,_WavePower)* (_WaveAmplitude/100) *sin(_Time*_WaveSpeed +t*2*3.1415*_SinOffsetRange); 
+                //_P0 += bezCtrlOffsetDir*  pOffset;
+                //_P1 += bezCtrlOffsetDir*  pOffset;
+                //_P2 += bezCtrlOffsetDir*  pOffset;
+                //_P3 += bezCtrlOffsetDir*  pOffset;
+
+
+                //Current best
+                //float p0Weight = 0.25;
+                float p1Weight = 0.33;
+                float p2Weight = 0.66;
+                float p3Weight = 1;
+
+                //float sinOffset = -0.003;
+
+   
+                float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
+                float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin(_Time*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+
+                ////_P0 += bezCtrlOffsetDir*  pOffset;
+                _P1 += bezCtrlOffsetDir*  p1ffset;
+                _P2 += bezCtrlOffsetDir*  p2ffset;
+                _P3 += bezCtrlOffsetDir*  p3ffset;
+                
+
+
                 float3 newPos = cubicBezier(_P0, _P1,_P2,_P3, t);
 
-                float3 tangent = bezierTangent(_P0, _P1,_P2,_P3, t);
+                float3 tangent = normalize(bezierTangent(_P0, _P1,_P2,_P3, t));
 
 
-                float3 normal = -cross(tangent, float3(0,0,1));
+                float3 normal = -normalize(cross(tangent, float3(0,0,1)));               
+
+                //Larger negative value means deeper bend
+                //float sinOffset = -1/3000;
+                
+
+                
+
+                //_P3 += bezCtrlOffsetDir*((_WaveAmplitude) *sin(_Time*_WaveSpeed) -0.01/30); 
+
+                //newPos = cubicBezier(_P0, _P1,_P2,_P3, t);
+
+                
+
+                
                 //v.vertex.z = 0;
 
                 //v.color = pow(v.color,2.23);
 
                 float width = (_Width/20) * (1-_TaperAmount*t);
-
                 newPos.z += side * width;
 
+                //-----Not using control points
                 //float3 waveOffsetVec = normal * (_WaveAmplitude/10) * (sin(_Time * _WaveSpeed) + sin(2*_Time * _WaveSpeed)) *pow(t,_WavePower);
 
                 //float3 waveOffsetVec = normal * (_WaveAmplitude/10) * (sin(_Time * _WaveSpeed)*cos(2*_Time * _WaveSpeed)) *pow(t,_WavePower);
 
-                float3 waveOffsetVec = normal * (_WaveAmplitude/50) * (sin(_Time * _WaveSpeed + t*2*3.1415)) *pow(t,_WavePower) ;
+                //float3 waveOffsetVec = normal * (_WaveAmplitude/40) * (sin(_Time * _WaveSpeed + t*2*3.1415)) *pow(t,_WavePower) + 90/100 ;
 
-                v.vertex.xyz = newPos + waveOffsetVec;
+                
+                //float3 waveOffsetVec = normal * (_WaveAmplitude/10) * (sin(_Time * _WaveSpeed)*cos(2*_Time * _WaveSpeed)) *pow(t,_WavePower);
+                //------------
 
-                //v.vertex.z = side * (_Width/10);
-                //float3 newPos = cubicBezier(_P0, _P1,_P2,_P3, t);
 
-                //v.vertex.xyz = newPos;
+                v.vertex.xyz = newPos;
 
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.color = v.color;
-                //o.color = v.color;
                 o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;

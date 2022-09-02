@@ -68,26 +68,28 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _LerpWaveGeneration: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TaperAmount: 0.45
     - _Test: 0.019
     - _UVSec: 0
-    - _WaveAmplitude: 0.037
+    - _WaveAmplitude: 0.095
     - _WavePower: 1
-    - _WaveSpeed: 3.51
+    - _WaveSpeed: 40
     - _Width: 0.011
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _P0: {r: -0.00009999993, g: 0, b: 0, a: 0}
-    - _P1: {r: -0.00032999998, g: 0.00433, b: -1.8927031e-10, a: 0}
-    - _P2: {r: -0.00112, g: 0.010659999, b: -4.659634e-10, a: 0}
-    - _P3: {r: 0.0034599998, g: 0.011879999, b: -5.192913e-10, a: 0}
+    - _P1: {r: 0.00014, g: 0.00303, b: -1.324455e-10, a: 0}
+    - _P2: {r: 0.0011999999, g: 0.00667, b: -2.9155495e-10, a: 0}
+    - _P3: {r: 0.0030599998, g: 0.00938, b: -0.0022300004, a: 0}
   m_BuildTextureStacks: []
