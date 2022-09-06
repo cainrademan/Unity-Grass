@@ -120,7 +120,7 @@ public class BezierTest : MonoBehaviour
             col.r = r;
 
             newColors[i] = col;
-            Debug.Log(newColors[i]);
+            //Debug.Log(newColors[i]);
         }
 
         clonedMesh.colors = newColors;

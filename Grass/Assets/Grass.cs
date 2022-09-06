@@ -29,7 +29,7 @@ public class Grass : MonoBehaviour
     ComputeBuffer meshPositions;
     ComputeBuffer meshColors;
     //public GameObject prefab;
-
+    public float _VertexPlacementPower;
     public float _GrassBaseHeight;
     public float _GrassHeightRandom;
     public float _GrassBaseWidth;
@@ -68,8 +68,13 @@ public class Grass : MonoBehaviour
     [SerializeField]
     Material material;
 
-    [SerializeField]
-    Mesh mesh;
+    //[SerializeField]
+    //Mesh mesh;
+
+    public Mesh originalMesh;
+    MeshFilter meshFilter;
+
+    Mesh clonedMesh;
 
     Bounds bounds;
     void UpdateGPUParams()
@@ -133,15 +138,43 @@ public class Grass : MonoBehaviour
         //numInstances = resolution * resolution;
         UpdateGPUParams();
 
+        clonedMesh = new Mesh(); //2
+
+        clonedMesh.name = "clone";
+        clonedMesh.vertices = originalMesh.vertices;
+        clonedMesh.triangles = originalMesh.triangles;
+        clonedMesh.normals = originalMesh.normals;
+        clonedMesh.uv = originalMesh.uv;
+        //clonedMesh.colors = originalMesh.colors;
+        //3
+        //mesh = grassBlade.GetComponent<Mesh>();
+
+        Color[] newColors = new Color[originalMesh.colors.Length];
+
+        for (int i = 0; i < originalMesh.colors.Length; i++)
+        {
+            Color col = originalMesh.colors[i];
+            float r = Mathf.Pow(col.r, _VertexPlacementPower);
+
+            col.r = r;
+
+            newColors[i] = col;
+            //Debug.Log(newColors[i]);
+        }
+
+        clonedMesh.colors = newColors;
+
+
         //gpu buffers for the mesh
-        int[] triangles = mesh.triangles;
+        int[] triangles = clonedMesh.triangles;
         meshTriangles = new ComputeBuffer(triangles.Length, sizeof(int));
         meshTriangles.SetData(triangles);
-        Vector3[] positions = mesh.vertices;
+        //It doesnt actually matter what the vertices are. This can be removed in theory
+        Vector3[] positions = clonedMesh.vertices;
         meshPositions = new ComputeBuffer(positions.Length, sizeof(float) * 3);
         meshPositions.SetData(positions);
 
-        Color[] colors = mesh.colors;
+        Color[] colors = clonedMesh.colors;
         meshColors = new ComputeBuffer(colors.Length, sizeof(float) * 4);
         meshColors.SetData(colors);
 

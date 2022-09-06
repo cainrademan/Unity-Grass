@@ -4,6 +4,12 @@ Shader "Unlit/Grass"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _TaperAmount ("_TaperAmount", Float) = 0
+        _p1Flexibility ("_p1Flexibility", Float) = 1
+        _p2Flexibility ("_p2Flexibility", Float) = 1
+        _WaveAmplitude("_WaveAmplitude", Float) = 1
+        _WaveSpeed("_WaveSpeed", Float) = 1
+        _WavePower("_WavePower", Float) = 1
+        _SinOffsetRange("_SinOffsetRange", Float) = 1
     }
     SubShader
     {
@@ -32,21 +38,15 @@ Shader "Unlit/Grass"
         };
     
         
-            //StructuredBuffer<float3> _Positions;
 
             StructuredBuffer<GrassBlade> _GrassBlades;
             StructuredBuffer<int> Triangles;
             StructuredBuffer<float3> Positions;
             StructuredBuffer<float4> Colors;
-            //struct appdata
-            //{
-            //    float4 vertex : POSITION;
-            //    float2 uv : TEXCOORD0;
-            //};
+
 
             struct v2f
             {
-                //float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR0;
@@ -55,6 +55,12 @@ Shader "Unlit/Grass"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _TaperAmount;
+            float _p1Flexibility;
+            float _p2Flexibility;
+            float _WaveAmplitude;
+            float _WaveSpeed;
+            float _WavePower;
+            float _SinOffsetRange;
 
             float3x3 AngleAxis3x3(float angle, float3 axis)
 	        {
@@ -135,13 +141,28 @@ Shader "Unlit/Grass"
                 float3 p1 = 0.33* p3;
                 float3 p2 = 0.66 * p3;
 
-                p1 += bezCtrlOffsetDir * bend;
-                p2 += bezCtrlOffsetDir * bend;
+                p1 += bezCtrlOffsetDir * bend * _p1Flexibility;
+                p2 += bezCtrlOffsetDir * bend * _p2Flexibility;
 
-                //
-                //float3 p1 = float3(0,height*0.33,0);
-                //float3 p2 = float3(0,height*0.66,0);
-                //float3 p3 = float3(0,height,0);
+
+                //Animation
+                float p1Weight = 0.33;
+                float p2Weight = 0.66;
+                float p3Weight = 1;
+
+                //float sinOffset = -0.003;
+                float hash= blade.hash;
+   
+                float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
+                float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+
+                ////_P0 += bezCtrlOffsetDir*  pOffset;
+                p1 += bezCtrlOffsetDir*  p1ffset;
+                p2 += bezCtrlOffsetDir*  p2ffset;
+                p3 += bezCtrlOffsetDir*  p3ffset;
+
+
                 //Evaluate Bezier curve
                 float3 newPos = cubicBezier(p0, p1,p2,p3, t);
 
@@ -149,9 +170,7 @@ Shader "Unlit/Grass"
                 //float3 tangent = normalize(bezierTangent(_P0, _P1,_P2,_P3, t));
                 //float3 normal = -normalize(cross(tangent, float3(0,0,1)));      
                 
-                //float width =blade.width;
                 float width = (blade.width) * (1-_TaperAmount*t);
-                //float width = (blade.width) * (1-_TaperAmount*t);
                 newPos.z += side * width;
 
 

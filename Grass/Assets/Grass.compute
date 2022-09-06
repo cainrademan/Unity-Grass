@@ -106,7 +106,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
 
-        position.y += height*40.6;
+        position.y += height*22.35;
 
         GrassBlade blade;
 
