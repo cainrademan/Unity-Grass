@@ -153,7 +153,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35b734f84865075438d25906e56faa02, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -1.4
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 35b734f84865075438d25906e56faa02, type: 3}
       propertyPath: m_LocalPosition.z
@@ -236,13 +236,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff38b2270b4526499416b006451d35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 100
+  resolution: 300
   plane: {fileID: 57059746}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
+  _GrassBaseHeight: 4.01
+  _GrassHeightRandom: 0.1
+  _GrassBaseWidth: 0.14
+  _GrassWidthRandom: 0.01
+  _GrassBaseTilt: 0.76
+  _GrassTiltRandom: 0.025
+  _GrassBaseBend: 0.75
+  _GrassBendRandom: 0.14
   heightMap: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
-  mesh: {fileID: 8254687373856176130, guid: 78c5dffd6efae24469256f62e2dcdf1d, type: 3}
+  mesh: {fileID: 8254687373856176130, guid: ad2d1a75903d2034b9e0d40fc3ef5368, type: 3}
 --- !u!4 &144754759
 Transform:
   m_ObjectHideFlags: 0
@@ -875,7 +883,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169331050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39, y: 32.32, z: 170.62}
+  m_LocalPosition: {x: 39, y: 18.38, z: 170.62}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
