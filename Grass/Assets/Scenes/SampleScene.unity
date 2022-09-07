@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff38b2270b4526499416b006451d35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 1000
+  resolution: 700
   plane: {fileID: 618272737}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
   _VertexPlacementPower: 1
@@ -760,7 +760,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 39, y: 36.1, z: 143.4}
+  m_LocalPosition: {x: 3.1, y: 36.1, z: -65.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -884,7 +884,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169331050}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.4409847, y: 7.04, z: 109.860374}
+  m_LocalPosition: {x: 0.8310261, y: 11.65, z: 29.27275}
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -964,15 +964,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b50db1054bc0be845be548aa6772b905, type: 3}
       propertyPath: m_LocalScale.x
-      value: 25000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b50db1054bc0be845be548aa6772b905, type: 3}
       propertyPath: m_LocalScale.y
-      value: 25000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b50db1054bc0be845be548aa6772b905, type: 3}
       propertyPath: m_LocalScale.z
-      value: 25000
+      value: 10000
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b50db1054bc0be845be548aa6772b905, type: 3}
       propertyPath: m_LocalPosition.x
