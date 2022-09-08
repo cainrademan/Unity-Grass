@@ -1,12 +1,41 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel Main
 
-RWStructuredBuffer<float3> _Positions;
+
+
+struct GrassBlade {
+
+    float3 position;
+    float2 facing;
+    float hash;
+    float height;
+    float width;
+    float tilt;
+    float bend;
+    
+};
+
+RWStructuredBuffer<GrassBlade> _GrassBlades;
+//AppendStructuredBuffer<GrassBlade> _GrassBlades;
 
 uint _Resolution;
 float _GrassSpacing;
 float _JitterStrength;
 float3 _PlaneCentre;
+float _GrassBaseHeight = 1;
+float _GrassHeightRandom = 0.1;
+float _GrassBaseWidth = 2;
+float _GrassWidthRandom = 0.011/2;
+float _GrassBaseTilt = 0.05;
+float _GrassTiltRandom = 0.05/2;
+float _GrassBaseBend = 0.01;
+float _GrassBendRandom = 0.01;
+
+
+
+float4x4 _VP_MATRIX;
+
+
 
 Texture2D HeightMap; 
 SamplerState samplerHeightMap;
@@ -27,11 +56,60 @@ uint _2DIdTo1D(uint3 id){
 //    return fract(sin(sn) * c);
 //}
 
-float2 hashwithoutsine22(float2 p)
+/*
+Output properties:
+float3 position
+float2 facing
+float hash
+float Height (sample from texture?)
+float width
+float tilt
+float bend
+
+*/
+
+        float2 hashwithoutsine22(float2 p)
 {
 	float3 p3 = frac(float3(p.xyx) * float3(.1031, .1030, .0973));
     p3 += dot(p3, p3.yzx+33.33);
     return frac((p3.xx+p3.yz)*p3.zy);
+}
+
+    float rand(float3 co)
+	        {
+		        return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
+	        }
+
+
+    float remap01_neg11(float t){
+    
+        return (t*2)-1;
+
+    }
+
+
+    uint IsInFrustum(float4 clipPos)
+
+
+{
+    return(clipPos.z > clipPos.w
+    || clipPos.z < 0
+    || clipPos.x < - clipPos.w
+    || clipPos.x > clipPos.w
+    || clipPos.y < - clipPos.w
+    || clipPos.y > clipPos.w)
+        ? 0: 1;
+}
+
+uint test(float3 pos)
+
+
+{
+    return(pos.x > 5
+    || pos.x < -5
+    || pos.z>5
+    || pos.z<-5)
+        ? 0: 1;
 }
 
 [numthreads(8,8,1)]
@@ -57,11 +135,44 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         worldUV = worldUV * (1/float2(500,500));
 
-        float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0);
+        float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
 
-        position.y += height*147.44;
+        position.y += height*22.35;
 
-        _Positions[_2DIdTo1D(id)] = position;
+
+        
+
+        //float4 clipPos = mul(_VP_MATRIX, float4(position,1));
+
+        //uint isInFrustum = IsInFrustum(clipPos);
+
+        //uint isInFrustum = test(position);
+
+        //if (isInFrustum == 1){
+
+            GrassBlade blade;
+
+            blade.position = position;
+
+            blade.facing = float2(rand(id.xxy),rand(id.yxx) ) *2 - 1;
+
+            //blade.facing = normalize(hashwithoutsine22(id.yx));
+            //blade.facing = float2(1,0);
+            blade.hash = rand(id.xyx);
+            blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
+            blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
+            //blade.width = _GrassBaseWidth;
+            //blade.width = 2;
+            //0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
+            blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
+            blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
+
+            _GrassBlades[_2DIdTo1D(id)] = blade;
+            //_GrassBlades.Append(blade);
+
+        //}
+
+        
     }
 
     //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);

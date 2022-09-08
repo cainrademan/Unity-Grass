@@ -61,6 +61,8 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AmbientLight: 1.35
+    - _BaseShadowStrength: 0.61
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -68,16 +70,40 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _Kamb: 0.69
+    - _Kd: 0.61
+    - _Kspec: 1
+    - _LengthShadingBaseLuminance: 0.13
+    - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _Shininess: 3
+    - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TaperAmount: 0.96
+    - _Test: 0
     - _UVSec: 0
+    - _WaveAmplitude: 16.61
+    - _WavePower: 1
+    - _WaveSpeed: 100
     - _ZWrite: 1
+    - __BaseShadowStrength: 2.34
+    - _a: 1.92
+    - _ka: 0.87
+    - _kamb: 0
+    - _kd: 0
+    - _ks: 3.45
+    - _kspec: 0
+    - _p1Flexibility: 1
+    - _p2Flexibility: 2
+    - _shininess: 0.53
     m_Colors:
+    - _BottomColor: {r: 0.30980393, g: 1, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TopColor: {r: 0.5710876, g: 1, b: 0.3820755, a: 1}
   m_BuildTextureStacks: []

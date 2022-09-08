@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TerrainMat
-  m_Shader: {fileID: 4800000, guid: 1a944dd8fe7deed40ac3f1ea1f93c08a, type: 3}
+  m_Name: BezierTest
+  m_Shader: {fileID: 4800000, guid: c800d6a20a318c54384c40304a61d7f8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -43,21 +43,13 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _Heightmap:
-        m_Texture: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
-        m_Scale: {x: 500, y: 500}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
-        m_Scale: {x: 100, y: 100}
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: cfdc474af4fadca4d8bd653796f6a8f8, type: 3}
-        m_Scale: {x: 20, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -74,20 +66,30 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0
+    - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HeightMul: 22.35
+    - _LerpWaveGeneration: 0
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _Offset: 0.01
     - _Parallax: 0.02
+    - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TaperAmount: 0.45
+    - _Test: 0.019
     - _UVSec: 0
+    - _WaveAmplitude: 0.095
+    - _WavePower: 1
+    - _WaveSpeed: 40
+    - _Width: 0.011
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _P0: {r: -0.00019999986, g: 0, b: 0, a: 0}
+    - _P1: {r: 0.00028, g: 0.00606, b: -2.64891e-10, a: 0}
+    - _P2: {r: 0.0023999999, g: 0.01334, b: -5.831099e-10, a: 0}
+    - _P3: {r: 0.0061199996, g: 0.01876, b: -0.0072200005, a: 0}
   m_BuildTextureStacks: []

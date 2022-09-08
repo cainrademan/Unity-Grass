@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
+//[ExecuteInEditMode]
 public class Grass : MonoBehaviour
 {
 
@@ -17,22 +19,44 @@ public class Grass : MonoBehaviour
     [SerializeField]
     ComputeShader computeShader;
 
-
+    public Camera cam;
 
     //ComputeBuffer meshTriangles;
     //ComputeBuffer meshPositions;
-    ComputeBuffer positionsBuffer;
+    ComputeBuffer grassBladesBuffer;
     ComputeBuffer meshTriangles;
+    //Maybe put all vertex info in one buffer contained in a struct?
     ComputeBuffer meshPositions;
-    public GameObject prefab;
+    ComputeBuffer meshColors;
+    //public GameObject prefab;
+    public float _VertexPlacementPower;
+    public float _GrassBaseHeight;
+    public float _GrassHeightRandom;
+    public float _GrassBaseWidth;
+    public float _GrassWidthRandom ;
+    public float _GrassBaseTilt;
+    public float _GrassTiltRandom;
+    public float _GrassBaseBend;
+    public float _GrassBendRandom;
 
     static readonly int
-        positionsId = Shader.PropertyToID("_Positions"),
+        grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
         grassSpacingId = Shader.PropertyToID("_GrassSpacing"),
         planeCentreId = Shader.PropertyToID("_PlaneCentre"),
         jitterStrengthId = Shader.PropertyToID("_JitterStrength"),
-        heightMapId = Shader.PropertyToID("HeightMap");
+        heightMapId = Shader.PropertyToID("HeightMap"),
+
+        heightId = Shader.PropertyToID("_GrassBaseHeight"),
+        heightRandId = Shader.PropertyToID("_GrassHeightRandom"),
+        widthId = Shader.PropertyToID("_GrassBaseWidth"),
+        widthRandId = Shader.PropertyToID("_GrassWidthRandom"),
+        tiltId = Shader.PropertyToID("_GrassBaseTilt"),
+        tiltRandId = Shader.PropertyToID("_GrassTiltRandom"),
+        bendId = Shader.PropertyToID("_GrassBaseBend"),
+        bendRandId = Shader.PropertyToID("_GrassBendRandom"),
+
+        vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
     public Texture heightMap;
@@ -46,16 +70,20 @@ public class Grass : MonoBehaviour
     [SerializeField]
     Material material;
 
-    [SerializeField]
-    Mesh mesh;
+    //[SerializeField]
+    //Mesh mesh;
 
-    Vector3[] output;
+    public Mesh originalMesh;
+    MeshFilter meshFilter;
+
+    Mesh clonedMesh;
+
     Bounds bounds;
     void UpdateGPUParams()
     {
         //Debug.Log(plane.GetComponent<Renderer>().bounds.size);
 
-        
+        //grassBladesBuffer.SetCounterValue(0);
 
         Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
 
@@ -73,27 +101,45 @@ public class Grass : MonoBehaviour
 
         PlaneCentre = new Vector3(planeDims.x / 2, 0, planeDims.z / 2);
 
-        //Debug.Log(mul);
-        //float step = 2f / resolution;
+
+        //NOTE: This doesnt need to be each frame. Do in Start instead
         computeShader.SetInt(resolutionId, resolution);
         computeShader.SetFloat(grassSpacingId, GrassSpacing);
         computeShader.SetFloat(jitterStrengthId, jitterStrength);
         computeShader.SetVector(planeCentreId, PlaneCentre);
         computeShader.SetTexture(0, heightMapId, heightMap);
-        computeShader.SetBuffer(0, positionsId, positionsBuffer);
+        computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
+
+        computeShader.SetFloat(heightId, _GrassBaseHeight);
+        computeShader.SetFloat(heightRandId, _GrassHeightRandom);
+        computeShader.SetFloat(widthId, _GrassBaseWidth);
+        computeShader.SetFloat(widthRandId, _GrassWidthRandom);
+        computeShader.SetFloat(tiltId, _GrassBaseTilt);
+        computeShader.SetFloat(tiltRandId, _GrassTiltRandom);
+        computeShader.SetFloat(bendId, _GrassBaseBend);
+        computeShader.SetFloat(bendRandId, _GrassBendRandom);
+
+        Matrix4x4 VP = cam.projectionMatrix * cam.worldToCameraMatrix;
+
+        computeShader.SetMatrix(vpMatrixID, VP);
+
 
         int groups = Mathf.CeilToInt(resolution / 8f);
         computeShader.Dispatch(0, groups, groups, 1);
 
-        material.SetBuffer("PositionsBuffer", positionsBuffer);
 
+        material.SetBuffer("_GrassBlades", grassBladesBuffer);
+
+        //numInstances = grassBladesBuffer.count;
+        //Debug.Log(grassBladesBuffer.count);
     }
 
     void Awake()
     {
         numInstances = resolution * resolution;
-        positionsBuffer = new ComputeBuffer(resolution * resolution, 3 * 4);
-
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
+        //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10, ComputeBufferType.Append);
+        //grassBladesBuffer.SetCounterValue(0);
 
     }
 
@@ -103,16 +149,49 @@ public class Grass : MonoBehaviour
         //numInstances = resolution * resolution;
         UpdateGPUParams();
 
+        clonedMesh = new Mesh(); //2
+
+        clonedMesh.name = "clone";
+        clonedMesh.vertices = originalMesh.vertices;
+        clonedMesh.triangles = originalMesh.triangles;
+        clonedMesh.normals = originalMesh.normals;
+        clonedMesh.uv = originalMesh.uv;
+        //clonedMesh.colors = originalMesh.colors;
+        //3
+        //mesh = grassBlade.GetComponent<Mesh>();
+
+        Color[] newColors = new Color[originalMesh.colors.Length];
+
+        for (int i = 0; i < originalMesh.colors.Length; i++)
+        {
+            Color col = originalMesh.colors[i];
+            float r = Mathf.Pow(col.r, _VertexPlacementPower);
+
+            col.r = r;
+
+            newColors[i] = col;
+            //Debug.Log(newColors[i]);
+        }
+
+        clonedMesh.colors = newColors;
+
+
         //gpu buffers for the mesh
-        int[] triangles = mesh.triangles;
+        int[] triangles = clonedMesh.triangles;
         meshTriangles = new ComputeBuffer(triangles.Length, sizeof(int));
         meshTriangles.SetData(triangles);
-        Vector3[] positions = mesh.vertices;
+        //It doesnt actually matter what the vertices are. This can be removed in theory
+        Vector3[] positions = clonedMesh.vertices;
         meshPositions = new ComputeBuffer(positions.Length, sizeof(float) * 3);
         meshPositions.SetData(positions);
 
+        Color[] colors = clonedMesh.colors;
+        meshColors = new ComputeBuffer(colors.Length, sizeof(float) * 4);
+        meshColors.SetData(colors);
+
         material.SetBuffer("Triangles", meshTriangles);
         material.SetBuffer("Positions", meshPositions);
+        material.SetBuffer("Colors", meshColors);
 
         bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
 
@@ -170,8 +249,10 @@ public class Grass : MonoBehaviour
 
     void OnDestroy()
     {
-        positionsBuffer.Dispose();
+
+        grassBladesBuffer.Dispose();
         meshTriangles.Dispose();
         meshPositions.Dispose();
+        meshColors.Dispose();
     }
 }

@@ -138,6 +138,9 @@ Shader "Custom/Plane2"
         {
             // Albedo comes from a texture tinted by color
            fixed4 c = tex2D (_MainTex, IN.uv_MainTex);
+
+           c= float4(float3(51, 26, 0)/255,1);
+
            o.Albedo = c;
            //o.Albedo = float4(IN.uv_MainTex,0,1);
            //fixed4 c = tex2D (_Heightmap, IN.worldUV);
