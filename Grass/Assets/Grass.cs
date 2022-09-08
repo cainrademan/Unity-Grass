@@ -19,7 +19,7 @@ public class Grass : MonoBehaviour
     [SerializeField]
     ComputeShader computeShader;
 
-
+    public Camera cam;
 
     //ComputeBuffer meshTriangles;
     //ComputeBuffer meshPositions;
@@ -54,7 +54,9 @@ public class Grass : MonoBehaviour
         tiltId = Shader.PropertyToID("_GrassBaseTilt"),
         tiltRandId = Shader.PropertyToID("_GrassTiltRandom"),
         bendId = Shader.PropertyToID("_GrassBaseBend"),
-        bendRandId = Shader.PropertyToID("_GrassBendRandom");
+        bendRandId = Shader.PropertyToID("_GrassBendRandom"),
+
+        vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
     public Texture heightMap;
@@ -81,7 +83,7 @@ public class Grass : MonoBehaviour
     {
         //Debug.Log(plane.GetComponent<Renderer>().bounds.size);
 
-        
+        //grassBladesBuffer.SetCounterValue(0);
 
         Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
 
@@ -117,18 +119,27 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat(bendId, _GrassBaseBend);
         computeShader.SetFloat(bendRandId, _GrassBendRandom);
 
+        Matrix4x4 VP = cam.projectionMatrix * cam.worldToCameraMatrix;
+
+        computeShader.SetMatrix(vpMatrixID, VP);
+
+
         int groups = Mathf.CeilToInt(resolution / 8f);
         computeShader.Dispatch(0, groups, groups, 1);
 
+
         material.SetBuffer("_GrassBlades", grassBladesBuffer);
 
+        //numInstances = grassBladesBuffer.count;
+        //Debug.Log(grassBladesBuffer.count);
     }
 
     void Awake()
     {
         numInstances = resolution * resolution;
         grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
-
+        //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10, ComputeBufferType.Append);
+        //grassBladesBuffer.SetCounterValue(0);
 
     }
 
