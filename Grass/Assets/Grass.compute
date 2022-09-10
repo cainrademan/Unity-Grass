@@ -15,8 +15,8 @@ struct GrassBlade {
     
 };
 
-RWStructuredBuffer<GrassBlade> _GrassBlades;
-//AppendStructuredBuffer<GrassBlade> _GrassBlades;
+//RWStructuredBuffer<GrassBlade> _GrassBlades;
+AppendStructuredBuffer<GrassBlade> _GrassBlades;
 
 uint _Resolution;
 float _GrassSpacing;
@@ -142,13 +142,13 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         
 
-        //float4 clipPos = mul(_VP_MATRIX, float4(position,1));
+        float4 clipPos = mul(_VP_MATRIX, float4(position,1));
 
-        //uint isInFrustum = IsInFrustum(clipPos);
+        uint isInFrustum = IsInFrustum(clipPos);
 
         //uint isInFrustum = test(position);
 
-        //if (isInFrustum == 1){
+        if (isInFrustum == 1){
 
             GrassBlade blade;
 
@@ -167,10 +167,10 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
             blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
 
-            _GrassBlades[_2DIdTo1D(id)] = blade;
-            //_GrassBlades.Append(blade);
+            //_GrassBlades[_2DIdTo1D(id)] = blade;
+            _GrassBlades.Append(blade);
 
-        //}
+        }
 
         
     }
