@@ -28,6 +28,11 @@ public class Grass : MonoBehaviour
     //Maybe put all vertex info in one buffer contained in a struct?
     ComputeBuffer meshPositions;
     ComputeBuffer meshColors;
+
+    ComputeBuffer argsBuffer;
+
+    private const int ARGS_STRIDE = sizeof(int) * 4;
+
     //public GameObject prefab;
     public float _VertexPlacementPower;
     public float _GrassBaseHeight;
@@ -83,7 +88,7 @@ public class Grass : MonoBehaviour
     {
         //Debug.Log(plane.GetComponent<Renderer>().bounds.size);
 
-        //grassBladesBuffer.SetCounterValue(0);
+        grassBladesBuffer.SetCounterValue(0);
 
         Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
 
@@ -128,6 +133,9 @@ public class Grass : MonoBehaviour
         computeShader.Dispatch(0, groups, groups, 1);
 
 
+        ComputeBuffer.CopyCount(grassBladesBuffer, argsBuffer, sizeof(int));
+
+
         material.SetBuffer("_GrassBlades", grassBladesBuffer);
 
         //numInstances = grassBladesBuffer.count;
@@ -137,17 +145,15 @@ public class Grass : MonoBehaviour
     void Awake()
     {
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
-        //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10, ComputeBufferType.Append);
-        //grassBladesBuffer.SetCounterValue(0);
+        //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10, ComputeBufferType.Append);
+        grassBladesBuffer.SetCounterValue(0);
 
     }
 
     // Start is called before the first frame update
     void Start()
-    {   
-        //numInstances = resolution * resolution;
-        UpdateGPUParams();
+    {
 
         clonedMesh = new Mesh(); //2
 
@@ -194,6 +200,19 @@ public class Grass : MonoBehaviour
         material.SetBuffer("Colors", meshColors);
 
         bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
+
+
+        argsBuffer = new ComputeBuffer(1, ARGS_STRIDE, ComputeBufferType.IndirectArguments);
+
+        Debug.Log(numInstances);
+
+        argsBuffer.SetData(new int[] { meshTriangles.count, 0, 0,0});
+
+
+
+        //numInstances = resolution * resolution;
+        UpdateGPUParams();
+
 
 
 
@@ -244,7 +263,9 @@ public class Grass : MonoBehaviour
 
         UpdateGPUParams();
 
-        Graphics.DrawProcedural(material, bounds, MeshTopology.Triangles, meshTriangles.count, numInstances);
+        //Graphics.DrawProcedural(material, bounds, MeshTopology.Triangles, meshTriangles.count, numInstances);
+        Graphics.DrawProceduralIndirect(material, bounds, MeshTopology.Triangles, argsBuffer, 
+            0, null, null, UnityEngine.Rendering.ShadowCastingMode.Off, true, gameObject.layer);
     }
 
     void OnDestroy()
@@ -254,5 +275,6 @@ public class Grass : MonoBehaviour
         meshTriangles.Dispose();
         meshPositions.Dispose();
         meshColors.Dispose();
+        argsBuffer.Dispose();
     }
 }

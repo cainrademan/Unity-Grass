@@ -234,6 +234,7 @@ MonoBehaviour:
   resolution: 700
   plane: {fileID: 618272737}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
+  cam: {fileID: 963194227}
   _VertexPlacementPower: 1
   _GrassBaseHeight: 2.58
   _GrassHeightRandom: 0.1
