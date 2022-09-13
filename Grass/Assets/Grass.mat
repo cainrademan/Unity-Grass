@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AmbientLight: 1.35
+    - _AmbientLight: 1.32
     - _BaseShadowStrength: 0.61
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -70,10 +70,10 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 0.69
-    - _Kd: 0.61
-    - _Kspec: 1
-    - _LengthShadingBaseLuminance: 0.13
+    - _Kamb: 1
+    - _Kd: 0
+    - _Kspec: 0
+    - _LengthShadingBaseLuminance: 0.19
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
@@ -87,9 +87,9 @@ Material:
     - _TaperAmount: 0.96
     - _Test: 0
     - _UVSec: 0
-    - _WaveAmplitude: 16.61
+    - _WaveAmplitude: 17.05
     - _WavePower: 1
-    - _WaveSpeed: 100
+    - _WaveSpeed: 60
     - _ZWrite: 1
     - __BaseShadowStrength: 2.34
     - _a: 1.92

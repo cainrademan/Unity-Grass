@@ -46,6 +46,7 @@ Shader "Unlit/Grass"
                 float width;
                 float tilt;
                 float bend;
+                float3 col;
         };
     
         
@@ -281,6 +282,8 @@ Shader "Unlit/Grass"
 
                 //col.rgb *= NdotL;
                 fixed4 col = lerp(_BottomColor,_TopColor, i.color.r) *light;
+
+                //fixed4 col = i.color;
 
                 //col = facing > 0 ? fixed4(1,0,0,1) : fixed4(0,1,0,1);
 

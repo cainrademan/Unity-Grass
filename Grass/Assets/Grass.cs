@@ -43,7 +43,15 @@ public class Grass : MonoBehaviour
     public float _GrassTiltRandom;
     public float _GrassBaseBend;
     public float _GrassBendRandom;
+    public float _FrustumCullNearOffset;
 
+    public float _DistanceCullStartDist;
+    public float _DistanceCullEndDist;
+    public float _DistanceCullC;
+    public float _DistanceCullM;
+    public float _DistanceCullMinimumGrassAmount;
+
+    public float _Test;
     static readonly int
         grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
@@ -60,6 +68,14 @@ public class Grass : MonoBehaviour
         tiltRandId = Shader.PropertyToID("_GrassTiltRandom"),
         bendId = Shader.PropertyToID("_GrassBaseBend"),
         bendRandId = Shader.PropertyToID("_GrassBendRandom"),
+
+        distanceCullStartDistId = Shader.PropertyToID("_DistanceCullStartDist"),
+        distanceCullEndDistId = Shader.PropertyToID("_DistanceCullEndDist"),
+        distanceCullCId = Shader.PropertyToID("_DistanceCullC"),
+        distanceCullMId = Shader.PropertyToID("_DistanceCullM"),
+
+
+        worldSpaceCameraPositionId = Shader.PropertyToID("_WSpaceCameraPos"),
 
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
@@ -90,31 +106,8 @@ public class Grass : MonoBehaviour
 
         grassBladesBuffer.SetCounterValue(0);
 
-        Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
 
-        Vector3 planeDims = planeBounds.size;
-
-        float planeArea = planeDims.x * planeDims.z;
-        ////Debug.Log(numInstances);
-
-
-        //GrassSpacing = planeArea / numInstances;
-
-        //GrassSpacing = Mathf.Sqrt(GrassSpacing);
-
-        GrassSpacing = planeDims.x / resolution;
-
-        PlaneCentre = new Vector3(planeDims.x / 2, 0, planeDims.z / 2);
-
-
-        //NOTE: This doesnt need to be each frame. Do in Start instead
-        computeShader.SetInt(resolutionId, resolution);
-        computeShader.SetFloat(grassSpacingId, GrassSpacing);
-        computeShader.SetFloat(jitterStrengthId, jitterStrength);
-        computeShader.SetVector(planeCentreId, PlaneCentre);
-        computeShader.SetTexture(0, heightMapId, heightMap);
-        computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
-
+        
         computeShader.SetFloat(heightId, _GrassBaseHeight);
         computeShader.SetFloat(heightRandId, _GrassHeightRandom);
         computeShader.SetFloat(widthId, _GrassBaseWidth);
@@ -124,7 +117,19 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat(bendId, _GrassBaseBend);
         computeShader.SetFloat(bendRandId, _GrassBendRandom);
 
-        Matrix4x4 VP = cam.projectionMatrix * cam.worldToCameraMatrix;
+        computeShader.SetFloat(distanceCullStartDistId, _DistanceCullStartDist);
+        computeShader.SetFloat(distanceCullEndDistId, _DistanceCullEndDist);
+        computeShader.SetFloat(distanceCullCId, _DistanceCullC);
+        computeShader.SetFloat(distanceCullMId, _DistanceCullM);
+
+        computeShader.SetVector(worldSpaceCameraPositionId, cam.transform.position);
+
+        computeShader.SetFloat("_Test", _Test);
+        computeShader.SetFloat("_DistanceCullMinimumGrassAmount", _DistanceCullMinimumGrassAmount);
+
+        Matrix4x4 projMat = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);
+
+        Matrix4x4 VP = projMat * cam.worldToCameraMatrix;
 
         computeShader.SetMatrix(vpMatrixID, VP);
 
@@ -146,7 +151,7 @@ public class Grass : MonoBehaviour
     {
         numInstances = resolution * resolution;
         //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 13, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -154,6 +159,7 @@ public class Grass : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
 
         clonedMesh = new Mesh(); //2
 
@@ -209,6 +215,35 @@ public class Grass : MonoBehaviour
         argsBuffer.SetData(new int[] { meshTriangles.count, 0, 0,0});
 
 
+        
+
+
+        Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
+
+        Vector3 planeDims = planeBounds.size;
+
+        float planeArea = planeDims.x * planeDims.z;
+        ////Debug.Log(numInstances);
+
+
+        //GrassSpacing = planeArea / numInstances;
+
+        //GrassSpacing = Mathf.Sqrt(GrassSpacing);
+
+        GrassSpacing = planeDims.x / resolution;
+
+        PlaneCentre = new Vector3(planeDims.x / 2, 0, planeDims.z / 2);
+
+
+        //NOTE: This doesnt need to be each frame. Do in Start instead
+        computeShader.SetInt(resolutionId, resolution);
+        computeShader.SetFloat(grassSpacingId, GrassSpacing);
+        computeShader.SetFloat(jitterStrengthId, jitterStrength);
+        computeShader.SetVector(planeCentreId, PlaneCentre);
+        computeShader.SetTexture(0, heightMapId, heightMap);
+        computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
+
+        computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
 
         //numInstances = resolution * resolution;
         UpdateGPUParams();

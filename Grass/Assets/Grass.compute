@@ -12,7 +12,7 @@ struct GrassBlade {
     float width;
     float tilt;
     float bend;
-    
+    float3 col;
 };
 
 //RWStructuredBuffer<GrassBlade> _GrassBlades;
@@ -30,7 +30,17 @@ float _GrassBaseTilt = 0.05;
 float _GrassTiltRandom = 0.05/2;
 float _GrassBaseBend = 0.01;
 float _GrassBendRandom = 0.01;
+float _FrustumCullNearOffset;
 
+
+float _DistanceCullStartDist;
+float _DistanceCullEndDist;
+float _DistanceCullC;
+float _DistanceCullM;
+float _DistanceCullMinimumGrassAmount;
+float _Test;
+
+float3 _WSpaceCameraPos;
 
 
 float4x4 _VP_MATRIX;
@@ -39,6 +49,8 @@ float4x4 _VP_MATRIX;
 
 Texture2D HeightMap; 
 SamplerState samplerHeightMap;
+//SamplerState my_linear_mirror_sample;
+
 
 uint _2DIdTo1D(uint3 id){
 
@@ -87,30 +99,88 @@ float bend
 
     }
 
+    uint DistanceCull(float3 worldPos, float hash, float3 norm){
+    
 
-    uint IsInFrustum(float4 clipPos)
+        float3 posToCam =  normalize(_WSpaceCameraPos - worldPos);
+
+        float viewAngleModulation = pow(saturate(dot(norm, posToCam)), _Test) * _DistanceCullC;
+
+        float viewAngleCull =  hash > (1-viewAngleModulation) ? 1 : -1;
+        //pow(1-dot(norm, camToPos), _DistanceCullC );
 
 
-{
-    return(clipPos.z > clipPos.w
-    || clipPos.z < 0
+        //Distance culling
+        float d = distance(worldPos, _WSpaceCameraPos);
+
+        float distanceSmoothStep = 1-smoothstep(_DistanceCullStartDist, _DistanceCullEndDist, d);
+
+        distanceSmoothStep = (distanceSmoothStep * (1-_DistanceCullMinimumGrassAmount)) + _DistanceCullMinimumGrassAmount;
+
+        //distanceSmoothStep *= viewAngleModulation;
+
+        //float otherCulling = hash;
+
+        //float distanceCull = hash > combined ? 1 : 0;
+
+        float combined = viewAngleCull * _DistanceCullM +(1-distanceSmoothStep);
+
+        return hash > combined ? 1 : 0;
+
+
+        //return saturate(viewAngleCull * _DistanceCullM + distanceCull);
+        //return distanceCulling > _CullBoundary ? 1 : 0;
+
+        
+    }
+
+    uint FrustumCull(float4 clipPos){
+    return(clipPos.z > clipPos.w 
+    || clipPos.z < - clipPos.w 
     || clipPos.x < - clipPos.w
     || clipPos.x > clipPos.w
-    || clipPos.y < - clipPos.w
+    || clipPos.y < - clipPos.w +_FrustumCullNearOffset
     || clipPos.y > clipPos.w)
         ? 0: 1;
 }
 
 uint test(float3 pos)
-
-
 {
-    return(pos.x > 5
+    return (pos.x > 5
     || pos.x < -5
     || pos.z>5
     || pos.z<-5)
         ? 0: 1;
 }
+
+
+    //float3 getNormal(float3 worldPos){
+
+    //        float3 bitangent = float3(1, 0, 0);
+    //        float3 tangent   = float3(0, 0, 1);
+
+    //        //float offset = 0.01;
+
+            
+
+
+
+    //}
+
+    float3 getTransformedVertex(float3 vertex){
+    
+
+        float2 worldUV = vertex.xz;
+
+        worldUV = worldUV * (1/float2(500,500));
+
+        float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
+
+        vertex.y += height*22.5;
+
+        return vertex;
+    
+    }
 
 [numthreads(8,8,1)]
 void Main (uint3 id : SV_DispatchThreadID)
@@ -125,47 +195,77 @@ void Main (uint3 id : SV_DispatchThreadID)
 
 
         float3 position = float3(id.x,0,id.y)*_GrassSpacing - _PlaneCentre;
+        
+        float2 hash = hashwithoutsine22(id.xy);
 
-        float2 jitter = ((hashwithoutsine22(id.xy)*2)-1 ) * _JitterStrength;
+        float2 jitter = ((hash*2)-1 ) * _JitterStrength;
         //float jitterY = rand(id.y,0,id.x);
 
         position.xz += jitter;
 
-        float2 worldUV = position.xz;
+        //float4 pos = float4(position,1);
 
-        worldUV = worldUV * (1/float2(500,500));
+        float3 bitangent = float3(1, 0, 0);
+        float3 tangent   = float3(0, 0, 1);
 
-        float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
 
-        position.y += height*22.35;
+        float3 vertexBitangent = getTransformedVertex(position + bitangent*0.01);
+        float3 vertexTangent = getTransformedVertex(position + tangent*0.01);
+        float3 raisedVertex = getTransformedVertex(position);
+
+        float3 newBitangent = (vertexBitangent-raisedVertex ).xyz;
+        float3 newTangent = (vertexTangent-raisedVertex).xyz;
+
+        float3 norm = normalize(cross(newTangent,newBitangent));
+
+
+        //float2 worldUV = position.xz;
+
+        //worldUV = worldUV * (1/float2(500,500));
+
+        //float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
+
+        //position.y += height*22.35;
 
 
         
 
-        float4 clipPos = mul(_VP_MATRIX, float4(position,1));
+        float4 clipPos = mul(_VP_MATRIX, float4(raisedVertex,1));
 
-        uint isInFrustum = IsInFrustum(clipPos);
+        //clipPos.y *= _Test;
 
+        uint isInFrustum = FrustumCull(clipPos);
+
+        //uint isInFrustum = 1;
+
+        uint distanceCull = DistanceCull(raisedVertex, hash.x, norm);
+        //uint distanceCull = 1;
         //uint isInFrustum = test(position);
 
-        if (isInFrustum == 1){
+        if (isInFrustum == 1 && distanceCull == 1){
 
             GrassBlade blade;
 
-            blade.position = position;
+            blade.position = raisedVertex;
 
             blade.facing = float2(rand(id.xxy),rand(id.yxx) ) *2 - 1;
 
             //blade.facing = normalize(hashwithoutsine22(id.yx));
             //blade.facing = float2(1,0);
             blade.hash = rand(id.xyx);
+
+            //blade.height = dot(norm, float3(0,1,0));
             blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
+
+            //blade.width = dot(norm, float3(0,1,0))*3;
             blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
             //blade.width = _GrassBaseWidth;
             //blade.width = 2;
             //0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
             blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
             blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
+
+            blade.col = norm;
 
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);
