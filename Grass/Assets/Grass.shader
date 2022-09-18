@@ -220,9 +220,9 @@ Shader "Unlit/Grass"
 
                     //for normals, unneeded now
                 float3 tangent = normalize(bezierTangent(p0, p1,p2,p3, t));
-                float3 normal = -normalize(cross(tangent, float3(0,0,1))) ;      
+                float3 normal = normalize(cross(tangent, float3(0,0,1))) ;      
                 
-                normal.z += side * pow(_Test3/1000,_Test4);
+                normal.z += side * pow(_Test3,_Test4);
 
                 normal = normalize(normal);
 
@@ -236,7 +236,7 @@ Shader "Unlit/Grass"
                 float2x2 rotMat2 = rotate2d(grassFacingAngle);
 
                 //normal = mul(rotMat,normal);
-                normal.xz = mul(rotMat2,normal.xz);
+                //normal.xz = mul(rotMat2,normal.xz);
 
                 newPos.xz = mul(rotMat2,newPos.xz);
                 //newPos = mul(rotMat,newPos);
@@ -266,9 +266,9 @@ Shader "Unlit/Grass"
 
             fixed4 frag (v2f i, fixed facing : VFACE) : SV_Target
             {
-                float3 n = -i.normal;
+                float3 n = i.normal;
 
-                n = facing > 0 ? n : -n;
+                n = facing > 0 ? n : float3(-n.x, -n.y, n.z);
 
                 float3 l = normalize(_WorldSpaceLightPos0);
 
@@ -323,7 +323,7 @@ Shader "Unlit/Grass"
 
 
 
-                col = fixed4(light.xxx,1);
+                col = fixed4(n,1);
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
