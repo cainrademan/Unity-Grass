@@ -81,27 +81,27 @@ Material:
     - _GlossScale: 12.54
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 0
-    - _Kd: 0
-    - _Kspec: 203.26
-    - _LengthShadingBaseLuminance: 0
-    - _LengthShadingStrength: 2
+    - _Kamb: 1
+    - _Kd: 1
+    - _Kspec: 0.79
+    - _LengthShadingBaseLuminance: 0.35
+    - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Shininess: 4
     - _ShininessLower: 1
-    - _ShininessUpper: 10.75
+    - _ShininessUpper: 0.05
     - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TaperAmount: 0.55
-    - _Test: 20
-    - _Test2: 36.83
-    - _Test3: 500
-    - _Test4: 0
+    - _Test: 211.8
+    - _Test2: 174.3
+    - _Test3: 1.22
+    - _Test4: 1
     - _UVSec: 0
     - _WaveAmplitude: 17.05
     - _WavePower: 1

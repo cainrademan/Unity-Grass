@@ -200,28 +200,28 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.position = raisedVertex;
 
 
-            float2 bladeFacing = normalize(float2(rand(id.xxy),rand(id.yxx) ) *2 - 1); 
+            //float2 bladeFacing = normalize(float2(rand(id.xxy),rand(id.yxx) ) *2 - 1); 
 
-
+            float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
             
 
-            float pi = 3.14159265;
+            //float pi = 3.14159265;
 
 
 
-            float d = distance(raisedVertex, _WSpaceCameraPos);
+            //float d = distance(raisedVertex, _WSpaceCameraPos);
 
-            float s = smoothstep(1.71, 1.71+10, d);
+            //float s = smoothstep(1.71, 1.71+10, d);
 
-            float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
-
-
-            float orthogonalAngleOffset = smoothstep(_Test2, 0, viewAlignment);
-
-            orthogonalAngleOffset*=s;
+            //float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
 
 
-            bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
+            //float orthogonalAngleOffset = smoothstep(_Test2, 0, viewAlignment);
+
+            //orthogonalAngleOffset*=s;
+
+
+            //bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
 
             float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
 

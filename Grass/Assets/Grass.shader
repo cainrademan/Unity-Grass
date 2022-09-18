@@ -73,10 +73,13 @@ Shader "Unlit/Grass"
             {
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
-                float3 normal : NORMAL;
+                float3 curvedNorm : TEXCOORD0;
                 fixed4 color : COLOR0;
-                float2 uv : TEXCOORD0;
-                float3 viewDir : TEXCOORD1;
+                float2 uv : TEXCOORD1;
+                float3 viewDir : TEXCOORD2;
+                float3 originalNorm : TEXCOORD3;
+                float3 worldPos : TEXCOORD4;
+                float3 surfaceNorm : TEXCOORD5;
             };
             float3 _WSpaceCameraPos;
 
@@ -108,22 +111,22 @@ Shader "Unlit/Grass"
             float _Test2;
             float _LengthShadingStrength;
             float _LengthShadingBaseLuminance;
-         //   float3x3 AngleAxis3x3(float angle, float3 axis)
-	        //{
-		       // float c, s;
-		       // sincos(angle, s, c);
+            float3x3 AngleAxis3x3(float angle, float3 axis)
+	        {
+		        float c, s;
+		        sincos(angle, s, c);
 
-		       // float t = 1 - c;
-		       // float x = axis.x;
-		       // float y = axis.y;
-		       // float z = axis.z;
+		        float t = 1 - c;
+		        float x = axis.x;
+		        float y = axis.y;
+		        float z = axis.z;
 
-		       // return float3x3(
-			      //  t * x * x + c, t * x * y - s * z, t * x * z + s * y,
-			      //  t * x * y + s * z, t * y * y + c, t * y * z - s * x,
-			      //  t * x * z - s * y, t * y * z + s * x, t * z * z + c
-			      //  );
-	        //}
+		        return float3x3(
+			        t * x * x + c, t * x * y - s * z, t * x * z + s * y,
+			        t * x * y + s * z, t * y * y + c, t * y * z - s * x,
+			        t * x * z - s * y, t * y * z + s * x, t * z * z + c
+			        );
+	        }
 
             float2x2 rotate2d(float _angle){
                 return float2x2(cos(_angle),-sin(_angle),
@@ -222,24 +225,32 @@ Shader "Unlit/Grass"
                 float3 tangent = normalize(bezierTangent(p0, p1,p2,p3, t));
                 float3 normal = normalize(cross(tangent, float3(0,0,1))) ;      
                 
-                normal.z += side * pow(_Test3,_Test4);
 
-                normal = normalize(normal);
+                //normal.z += side * pow(_Test3,_Test4);
+
+                float3 curvedNormal = normal;
+                curvedNormal.z += side * pow(_Test3,_Test4);
+
+                curvedNormal = normalize(curvedNormal);
 
                 float width = (blade.width) * (1-_TaperAmount*t);
                 newPos.z += side * width;
 
                 float grassFacingAngle = blade.rotAngle;
 
-                //float3x3 rotMat = AngleAxis3x3(grassFacingAngle, float3(0,1,0));
+                float3x3 rotMat = AngleAxis3x3(grassFacingAngle, float3(0,1,0));
 
                 float2x2 rotMat2 = rotate2d(grassFacingAngle);
 
-                //normal = mul(rotMat,normal);
+                normal = mul(rotMat,normal);
+                curvedNormal = mul(rotMat,curvedNormal);
+
+                //normal = normalize(normal);
+
                 //normal.xz = mul(rotMat2,normal.xz);
 
-                newPos.xz = mul(rotMat2,newPos.xz);
-                //newPos = mul(rotMat,newPos);
+                //newPos.xz = mul(rotMat2,newPos.xz);
+                newPos = mul(rotMat,newPos);
 
                 newPos += blade.position;
 
@@ -249,15 +260,18 @@ Shader "Unlit/Grass"
                 
                 float3 surfaceNorm = blade.surfaceNorm;
 
-                float distToCam = distance(newPos, _WSpaceCameraPos);
+                //float distToCam = distance(newPos, _WSpaceCameraPos);
 
-                float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
+                //float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
 
-                float3 finalNorm = lerp(normal, surfaceNorm, surfaceNormalBlendSmoothstep);
+                //float3 finalNorm = lerp(normal, surfaceNorm, surfaceNormalBlendSmoothstep);
 
                 o.uv = uv;
+                o.worldPos = newPos;
+                o.surfaceNorm = surfaceNorm;
                 o.viewDir = normalize(_WSpaceCameraPos-newPos);
-                o.normal = normalize(finalNorm);
+                o.curvedNorm = normalize(curvedNormal);
+                o.originalNorm = normalize(normal);
                 o.color = color;
                 o.vertex = mul(UNITY_MATRIX_VP, float4(newPos, 1));
                 UNITY_TRANSFER_FOG(o,o.vertex);
@@ -266,46 +280,76 @@ Shader "Unlit/Grass"
 
             fixed4 frag (v2f i, fixed facing : VFACE) : SV_Target
             {
-                float3 n = i.normal;
+                float3 curvedNorm = i.curvedNorm;
 
-                n = facing > 0 ? n : float3(-n.x, -n.y, n.z);
+                float3 originalNorm = i.originalNorm;
 
+                float3 n;
+
+                if (facing > 0){
+                
+                    n = curvedNorm;
+
+                }
+                else {
+                
+                    n = -reflect(-curvedNorm,originalNorm);
+                
+                }
+
+                //float distToCam = distance(i.worldPos, _WSpaceCameraPos);
+
+                //float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
+
+                //n = lerp(n, i.surfaceNorm, surfaceNormalBlendSmoothstep);
+
+
+
+                //n = facing > 0 ? n : float3(-n.x, -n.y, n.z);
+
+
+                //n= normalize(n);
+                //n = facing > 0 ? n : -n;
                 float3 l = normalize(_WorldSpaceLightPos0);
 
                 float gloss = tex2D(_GrassGloss, i.uv*float2(_GlossScale, 1));
 
 
+                //float reflectMask = round(saturate(dot(l,n)));
 
-                float3 r = reflect(-l,n);
+
+                float3 r = normalize(reflect(-l,n)) ;
                 float3 v = normalize(i.viewDir);
 
                 float ks = 1;
 
                 //float shininess = lerp(_ShininessLower, _ShininessUpper, gloss);
 
-                //float spec = _Kspec* pow(saturate(dot(r,v)),_ShininessUpper);
+                float spec = _Kspec* pow(saturate(dot(r,v)),_ShininessUpper);
 
-                float3 H = normalize(v + l); // Half direction
-                float NdotH = max(0, dot(n, H));
-                float specular = pow(NdotH, _ShininessUpper) * _Kspec;
+                //float spec = saturate(dot(r, l));
+
+                //float3 H = normalize(v + l); // Half direction
+                //float NdotH = max(0, dot(n, H));
+                //float specular = pow(NdotH, _ShininessUpper) * _Kspec;
 
 
                 float diff =  _Kd * saturate(dot(n,l));
 
                 float light =  _Kamb + 
                                 diff 
-                               + specular;
+                               + spec;
                 
 
                 //light = light);
 
-                 light = saturate(light);
+                //light = saturate(light);
                  
                 float lengthShading =  (i.color.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
 
                 light *= lengthShading;
 
-                light = saturate(light);
+                //light = saturate(light);
 
                 float grassAlbedo =  (tex2D(_GrassAlbedo, i.uv*float2(_AlbedoScale, 1))     ) ;
 
@@ -323,7 +367,7 @@ Shader "Unlit/Grass"
 
 
 
-                col = fixed4(n,1);
+                //col = fixed4(spec.xxx,1);
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
