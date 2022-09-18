@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.45076972, g: 0.50070834, b: 0.5747753, a: 1}
+  m_IndirectSpecularColor: {r: 0.45051444, g: 0.49841756, b: 0.5638758, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff38b2270b4526499416b006451d35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 1000
+  resolution: 700
   plane: {fileID: 618272737}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
   cam: {fileID: 963194227}
@@ -245,12 +245,14 @@ MonoBehaviour:
   _GrassBaseBend: 0.18
   _GrassBendRandom: 0.12
   _FrustumCullNearOffset: -5
-  _DistanceCullStartDist: 10.5
-  _DistanceCullEndDist: 76.1
+  _DistanceCullStartDist: 20
+  _DistanceCullEndDist: 50
   _DistanceCullC: 20.55
   _DistanceCullM: -0.55
-  _DistanceCullMinimumGrassAmount: 0.02
-  _Test: 2
+  _DistanceCullMinimumGrassAmount: 0.4
+  DISTANCE_CULL_ENABLED: 1
+  _Test: 1.71
+  _Test2: 0.21
   heightMap: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
@@ -662,14 +664,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705507993}
-  m_LocalRotation: {x: 0.9133878, y: 0.19350195, z: -0.24093072, w: 0.26501375}
+  m_LocalRotation: {x: 0.93878144, y: 0.22128713, z: -0.21569118, w: 0.15231107}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 35.265, y: -515.579, z: -556.053}
+  m_LocalEulerAnglesHint: {x: 22.422, y: -518.58203, z: -562.234}
 --- !u!1 &720218546
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,18 +1,19 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel Main
-
+#pragma multi_compile_local __ DISTANCE_CULL_ENABLED
 
 
 struct GrassBlade {
 
     float3 position;
-    float2 facing;
+    //float2 facing;
+    float rotAngle;
     float hash;
     float height;
     float width;
     float tilt;
     float bend;
-    float3 col;
+    float3 surfaceNorm;
 };
 
 //RWStructuredBuffer<GrassBlade> _GrassBlades;
@@ -39,9 +40,8 @@ float _DistanceCullC;
 float _DistanceCullM;
 float _DistanceCullMinimumGrassAmount;
 float _Test;
-
+float _Test2;
 float3 _WSpaceCameraPos;
-
 
 float4x4 _VP_MATRIX;
 
@@ -58,27 +58,6 @@ uint _2DIdTo1D(uint3 id){
 
 }
 
-//float float rand(float2 co)
-//{
-//    float a = 12.9898;
-//    float b = 78.233;
-//    float c = 43758.5453;
-//    float dt= dot(co.xy ,vec2(a,b));
-//    float sn= mod(dt,3.14);
-//    return fract(sin(sn) * c);
-//}
-
-/*
-Output properties:
-float3 position
-float2 facing
-float hash
-float Height (sample from texture?)
-float width
-float tilt
-float bend
-
-*/
 
         float2 hashwithoutsine22(float2 p)
 {
@@ -99,15 +78,13 @@ float bend
 
     }
 
-    uint DistanceCull(float3 worldPos, float hash, float3 norm){
+    uint DistanceCull(float3 worldPos, float hash, float3 norm, float3 posToCam){
     
+       
 
-        float3 posToCam =  normalize(_WSpaceCameraPos - worldPos);
-
-        float viewAngleModulation = pow(saturate(dot(norm, posToCam)), _Test) * _DistanceCullC;
+        float viewAngleModulation = pow(saturate(dot(norm, posToCam)  * _DistanceCullC), _Test);
 
         float viewAngleCull =  hash > (1-viewAngleModulation) ? 1 : -1;
-        //pow(1-dot(norm, camToPos), _DistanceCullC );
 
 
         //Distance culling
@@ -119,13 +96,10 @@ float bend
 
         //distanceSmoothStep *= viewAngleModulation;
 
-        //float otherCulling = hash;
 
-        //float distanceCull = hash > combined ? 1 : 0;
+        //float combined = viewAngleCull * _DistanceCullM +(1-distanceSmoothStep);
 
-        float combined = viewAngleCull * _DistanceCullM +(1-distanceSmoothStep);
-
-        return hash > combined ? 1 : 0;
+        return hash > 1-distanceSmoothStep ? 1 : 0;
 
 
         //return saturate(viewAngleCull * _DistanceCullM + distanceCull);
@@ -154,19 +128,6 @@ uint test(float3 pos)
 }
 
 
-    //float3 getNormal(float3 worldPos){
-
-    //        float3 bitangent = float3(1, 0, 0);
-    //        float3 tangent   = float3(0, 0, 1);
-
-    //        //float offset = 0.01;
-
-            
-
-
-
-    //}
-
     float3 getTransformedVertex(float3 vertex){
     
 
@@ -191,19 +152,14 @@ void Main (uint3 id : SV_DispatchThreadID)
 
     if (id.x < _Resolution && id.y < _Resolution){
 
-        //float3 planeOffset = float3(_PlaneCentre.x, 0, _PlaneCentre.z);
-
 
         float3 position = float3(id.x,0,id.y)*_GrassSpacing - _PlaneCentre;
         
         float2 hash = hashwithoutsine22(id.xy);
 
         float2 jitter = ((hash*2)-1 ) * _JitterStrength;
-        //float jitterY = rand(id.y,0,id.x);
 
         position.xz += jitter;
-
-        //float4 pos = float4(position,1);
 
         float3 bitangent = float3(1, 0, 0);
         float3 tangent   = float3(0, 0, 1);
@@ -219,28 +175,23 @@ void Main (uint3 id : SV_DispatchThreadID)
         float3 norm = normalize(cross(newTangent,newBitangent));
 
 
-        //float2 worldUV = position.xz;
-
-        //worldUV = worldUV * (1/float2(500,500));
-
-        //float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
-
-        //position.y += height*22.35;
-
 
         
 
         float4 clipPos = mul(_VP_MATRIX, float4(raisedVertex,1));
 
-        //clipPos.y *= _Test;
 
         uint isInFrustum = FrustumCull(clipPos);
 
-        //uint isInFrustum = 1;
+        uint distanceCull = 1;
 
-        uint distanceCull = DistanceCull(raisedVertex, hash.x, norm);
-        //uint distanceCull = 1;
-        //uint isInFrustum = test(position);
+        float3 posToCam =  normalize(_WSpaceCameraPos - raisedVertex);
+
+        #if DISTANCE_CULL_ENABLED
+
+            distanceCull = DistanceCull(raisedVertex, hash.x, norm, posToCam);
+        #endif
+
 
         if (isInFrustum == 1 && distanceCull == 1){
 
@@ -248,24 +199,50 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             blade.position = raisedVertex;
 
-            blade.facing = float2(rand(id.xxy),rand(id.yxx) ) *2 - 1;
 
-            //blade.facing = normalize(hashwithoutsine22(id.yx));
-            //blade.facing = float2(1,0);
+            float2 bladeFacing = normalize(float2(rand(id.xxy),rand(id.yxx) ) *2 - 1); 
+
+
+            
+
+            float pi = 3.14159265;
+
+
+
+            float d = distance(raisedVertex, _WSpaceCameraPos);
+
+            float s = smoothstep(1.71, 1.71+10, d);
+
+            float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
+
+
+            float orthogonalAngleOffset = smoothstep(_Test2, 0, viewAlignment);
+
+            orthogonalAngleOffset*=s;
+
+
+            bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
+
+            float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
+
+           
+
+            blade.rotAngle = grassFacingAngle;
+
             blade.hash = rand(id.xyx);
 
-            //blade.height = dot(norm, float3(0,1,0));
+
+
             blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
 
-            //blade.width = dot(norm, float3(0,1,0))*3;
+
             blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
-            //blade.width = _GrassBaseWidth;
-            //blade.width = 2;
+
             //0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
             blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
             blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
 
-            blade.col = norm;
+            blade.surfaceNorm = norm;
 
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);

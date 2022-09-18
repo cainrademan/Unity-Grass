@@ -10,6 +10,7 @@ Shader "Custom/Plane2"
         _HeightMul ("Height multiplier", Float) = 1
         _Offset ("_Offset", Float) = 0.01
         _NormalMap ("Norm", 2D) = "white" {}
+
     }
     SubShader
     {
@@ -139,9 +140,11 @@ Shader "Custom/Plane2"
             // Albedo comes from a texture tinted by color
            fixed4 c = tex2D (_MainTex, IN.uv_MainTex);
 
-           c= float4(float3(51, 26, 0)/255,1);
+           //c = lerp(c, _Color, 0.5);
 
-           o.Albedo = c;
+           //c= float4(float3(51, 26, 0)/255,1);
+
+           o.Albedo = c * _Color;
            //o.Albedo = float4(IN.uv_MainTex,0,1);
            //fixed4 c = tex2D (_Heightmap, IN.worldUV);
             //float3 norm = tex2D (_NormalMap, IN.worldUV);
@@ -149,7 +152,7 @@ Shader "Custom/Plane2"
 
 
            //o.Albedo = float4(IN.norm,1);
-            //o.Normal = UnpackNormal(tex2D (_NormalMap, IN.worldUV*10));
+           //o.Normal = UnpackNormal(tex2D (_NormalMap, IN.uv_MainTex));
             //o.Albedo = height.xxx;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

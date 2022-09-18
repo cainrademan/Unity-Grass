@@ -7,27 +7,24 @@ using UnityEngine;
 public class Grass : MonoBehaviour
 {
 
-    [SerializeField, Range(10, 1000)]
+    [SerializeField, Range(10, 2000)]
     int resolution = 10;
 
     int numInstances;
 
     public GameObject plane;
 
-    //public int mul;
-
     [SerializeField]
     ComputeShader computeShader;
 
     public Camera cam;
 
-    //ComputeBuffer meshTriangles;
-    //ComputeBuffer meshPositions;
     ComputeBuffer grassBladesBuffer;
     ComputeBuffer meshTriangles;
     //Maybe put all vertex info in one buffer contained in a struct?
     ComputeBuffer meshPositions;
     ComputeBuffer meshColors;
+    ComputeBuffer meshUvs;
 
     ComputeBuffer argsBuffer;
 
@@ -51,7 +48,10 @@ public class Grass : MonoBehaviour
     public float _DistanceCullM;
     public float _DistanceCullMinimumGrassAmount;
 
+    public bool DISTANCE_CULL_ENABLED;
+
     public float _Test;
+    public float _Test2;
     static readonly int
         grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
@@ -83,16 +83,10 @@ public class Grass : MonoBehaviour
     public Texture heightMap;
     public float jitterStrength;
 
-
-    //Bounds planeBounds;
-
     float GrassSpacing;
     Vector3 PlaneCentre;
     [SerializeField]
     Material material;
-
-    //[SerializeField]
-    //Mesh mesh;
 
     public Mesh originalMesh;
     MeshFilter meshFilter;
@@ -102,7 +96,6 @@ public class Grass : MonoBehaviour
     Bounds bounds;
     void UpdateGPUParams()
     {
-        //Debug.Log(plane.GetComponent<Renderer>().bounds.size);
 
         grassBladesBuffer.SetCounterValue(0);
 
@@ -125,6 +118,7 @@ public class Grass : MonoBehaviour
         computeShader.SetVector(worldSpaceCameraPositionId, cam.transform.position);
 
         computeShader.SetFloat("_Test", _Test);
+        computeShader.SetFloat("_Test2", _Test2);
         computeShader.SetFloat("_DistanceCullMinimumGrassAmount", _DistanceCullMinimumGrassAmount);
 
         Matrix4x4 projMat = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);
@@ -142,16 +136,14 @@ public class Grass : MonoBehaviour
 
 
         material.SetBuffer("_GrassBlades", grassBladesBuffer);
+        material.SetVector("_WSpaceCameraPos", cam.transform.position);
 
-        //numInstances = grassBladesBuffer.count;
-        //Debug.Log(grassBladesBuffer.count);
     }
 
     void Awake()
     {
         numInstances = resolution * resolution;
-        //grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 10);
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 13, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 12, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -159,7 +151,31 @@ public class Grass : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (DISTANCE_CULL_ENABLED)
+        {
 
+           computeShader.EnableKeyword("DISTANCE_CULL_ENABLED");
+
+        }
+        else
+        {
+            computeShader.DisableKeyword("DISTANCE_CULL_ENABLED");
+            
+        }
+
+        //var keywordSpace = computeShader.keywordSpace;
+
+        //foreach (var localKeyword in keywordSpace.keywords)
+        //{
+        //    // Get the current state of the local keyword
+        //    bool state = computeShader.IsKeywordEnabled(localKeyword);
+        //    Debug.Log(localKeyword);
+        //    Debug.Log(state);
+        //    // Toggle the state
+        //    //computeShader.SetKeyword(localKeyword, !state);
+        //}
+
+        
 
         clonedMesh = new Mesh(); //2
 
@@ -168,9 +184,6 @@ public class Grass : MonoBehaviour
         clonedMesh.triangles = originalMesh.triangles;
         clonedMesh.normals = originalMesh.normals;
         clonedMesh.uv = originalMesh.uv;
-        //clonedMesh.colors = originalMesh.colors;
-        //3
-        //mesh = grassBlade.GetComponent<Mesh>();
 
         Color[] newColors = new Color[originalMesh.colors.Length];
 
@@ -182,7 +195,6 @@ public class Grass : MonoBehaviour
             col.r = r;
 
             newColors[i] = col;
-            //Debug.Log(newColors[i]);
         }
 
         clonedMesh.colors = newColors;
@@ -201,9 +213,15 @@ public class Grass : MonoBehaviour
         meshColors = new ComputeBuffer(colors.Length, sizeof(float) * 4);
         meshColors.SetData(colors);
 
+        Vector2[] uvs = clonedMesh.uv;
+        meshUvs = new ComputeBuffer(uvs.Length, sizeof(float) * 2);
+        meshUvs.SetData(uvs);
+
+
         material.SetBuffer("Triangles", meshTriangles);
         material.SetBuffer("Positions", meshPositions);
         material.SetBuffer("Colors", meshColors);
+        material.SetBuffer("Uvs", meshUvs);
 
         bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
 
@@ -215,27 +233,19 @@ public class Grass : MonoBehaviour
         argsBuffer.SetData(new int[] { meshTriangles.count, 0, 0,0});
 
 
-        
-
+    
 
         Bounds planeBounds = plane.GetComponent<Renderer>().bounds;
 
         Vector3 planeDims = planeBounds.size;
 
         float planeArea = planeDims.x * planeDims.z;
-        ////Debug.Log(numInstances);
 
-
-        //GrassSpacing = planeArea / numInstances;
-
-        //GrassSpacing = Mathf.Sqrt(GrassSpacing);
 
         GrassSpacing = planeDims.x / resolution;
 
         PlaneCentre = new Vector3(planeDims.x / 2, 0, planeDims.z / 2);
 
-
-        //NOTE: This doesnt need to be each frame. Do in Start instead
         computeShader.SetInt(resolutionId, resolution);
         computeShader.SetFloat(grassSpacingId, GrassSpacing);
         computeShader.SetFloat(jitterStrengthId, jitterStrength);
@@ -244,52 +254,7 @@ public class Grass : MonoBehaviour
         computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
 
         computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
-
-        //numInstances = resolution * resolution;
         UpdateGPUParams();
-
-
-
-
-
-
-
-
-        //output = new Vector3[resolution * resolution];
-
-        //positionsBuffer.GetData(output);
-
-
-
-        //if (output.Length == 0)
-        //{
-
-        //    Debug.Log("emtpy");
-
-        //}
-        //else {
-
-        //    Debug.Log("not empt");
-
-        //}
-        //int i = 0;
-        //foreach (Vector3 v in output) {
-        //    i++;
-        //    Debug.Log(v + " " + i);
-        //Transform[] instances = new Transform[numInstances];
-        //for (int i = 0; i < numInstances; i++)
-        //{
-        //    Instantiate(prefab, output[i] * mul, Quaternion.identity);
-        //}
-        //}
-
-
-
-
-        //Graphics.DrawProcedural(material, bounds, MeshTopology.Triangles, meshTriangles.count, numInstances);
-        //Graphics.DrawMeshInstancedProcedural(
-        //    mesh, 0, material, bounds, positionsBuffer.count
-        //);
     }
 
     // Update is called once per frame
@@ -310,6 +275,7 @@ public class Grass : MonoBehaviour
         meshTriangles.Dispose();
         meshPositions.Dispose();
         meshColors.Dispose();
+        meshUvs.Dispose();
         argsBuffer.Dispose();
     }
 }
