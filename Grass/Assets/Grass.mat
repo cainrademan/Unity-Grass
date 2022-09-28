@@ -67,45 +67,57 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WindStrength:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WindTex:
+        m_Texture: {fileID: 2800000, guid: 3f0fa1cf5b5b0164abc2e3b04b4e3920, type: 3}
+        m_Scale: {x: 0.01, y: 100000}
+        m_Offset: {x: -1, y: -1}
     m_Ints: []
     m_Floats:
-    - _AlbedoScale: 1.85
-    - _AlbedoStrength: 5
+    - _AlbedoScale: 9
+    - _AlbedoStrength: 1.05
     - _AmbientLight: 1.32
     - _BaseShadowStrength: 0.61
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
+    - _DistantDiff: 0.84
+    - _DistantSpec: 1.55
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _GlossScale: 12.54
+    - _GlossScale: 16.47
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 1
-    - _Kd: 1
-    - _Kspec: 0.79
-    - _LengthShadingBaseLuminance: 0.35
+    - _Kamb: 0.36
+    - _Kd: 0.75
+    - _Kspec: 3.86
+    - _LengthShadingBaseLuminance: 0.3
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Shininess: 4
-    - _ShininessLower: 1
-    - _ShininessUpper: 0.05
+    - _ShininessLower: 5
+    - _ShininessUpper: 6
     - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TaperAmount: 0.55
-    - _Test: 211.8
-    - _Test2: 174.3
+    - _Test: 0
+    - _Test2: 70
     - _Test3: 1.22
-    - _Test4: 1
+    - _Test4: 0.75
     - _UVSec: 0
     - _WaveAmplitude: 17.05
     - _WavePower: 1
     - _WaveSpeed: 60
+    - _WindSpeed: 1.54
+    - _WindStrength: 0.59
     - _ZWrite: 1
     - __BaseShadowStrength: 2.34
     - _a: 1.92
@@ -121,5 +133,5 @@ Material:
     - _BottomColor: {r: 0.09198113, g: 0.3679245, b: 0.104245245, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TopColor: {r: 0.24950142, g: 0.4716981, b: 0.16242434, a: 1}
+    - _TopColor: {r: 0.48567894, g: 0.8962264, b: 0.31706125, a: 1}
   m_BuildTextureStacks: []

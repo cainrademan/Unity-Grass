@@ -6,8 +6,8 @@
 struct GrassBlade {
 
     float3 position;
-    //float2 facing;
-    float rotAngle;
+    float2 facing;
+    //float rotAngle;
     float hash;
     float height;
     float width;
@@ -49,6 +49,10 @@ float4x4 _VP_MATRIX;
 
 Texture2D HeightMap; 
 SamplerState samplerHeightMap;
+
+
+
+
 //SamplerState my_linear_mirror_sample;
 
 
@@ -204,7 +208,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
             
-
+            //float2 bladeFacing = float2(1,0);
             //float pi = 3.14159265;
 
 
@@ -223,11 +227,19 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             //bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
 
-            float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
+           //float2 bladeFacing = float2(1,0);
 
-           
+           //float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
 
-            blade.rotAngle = grassFacingAngle;
+           //float grassFacingAngle = 0 + rand(id.xxy);
+
+           float grassFacingAngle = 0;
+
+            //blade.rotAngle = grassFacingAngle;
+
+            //blade.facing = bladeFacing;
+
+            blade.facing = normalize(bladeFacing);
 
             blade.hash = rand(id.xyx);
 

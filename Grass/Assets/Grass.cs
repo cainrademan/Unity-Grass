@@ -143,7 +143,7 @@ public class Grass : MonoBehaviour
     void Awake()
     {
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 12, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 13, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
