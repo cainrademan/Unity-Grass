@@ -88,6 +88,12 @@ public class FreeFlyCamera : MonoBehaviour
     private Vector3 _initPosition;
     private Vector3 _initRotation;
 
+    public Texture2D heightMap;
+
+    public bool clampToTerrain;
+
+    public Vector4 _Heightmap_ST;
+    public float _HeightMul;
 #if UNITY_EDITOR
     private void OnValidate()
     {
@@ -214,5 +220,29 @@ public class FreeFlyCamera : MonoBehaviour
             transform.position = _initPosition;
             transform.eulerAngles = _initRotation;
         }
+
+        //if (clampToTerrain) {
+        //    Vector3 worldPosition = gameObject.transform.position;
+
+        //    Vector2 worldUV = new Vector2(worldPosition.x, worldPosition.z);
+        //    //worldUV = worldUV * (1 / _Heightmap_ST.xy) + _Heightmap_ST.zw;
+
+        //    worldUV = worldUV * new Vector2((1 / _Heightmap_ST.x) + _Heightmap_ST.z, (1 / _Heightmap_ST.y) + _Heightmap_ST.w);
+
+
+        //    //float height = tex2Dlod(_Heightmap, float4(worldUV.x, worldUV.y, 0, 0)).r;
+
+        //    //heightMap.wrapMode = TextureWrapMode.Mirror;
+        //    //heightMap.Apply();
+
+        //    float height = heightMap.GetPixelBilinear(worldUV.x, worldUV.y, 0).r * _HeightMul;
+
+
+        //    transform.position = new Vector3(transform.position.x, height +2, transform.position.z) ;
+
+
+        //}
+
+
     }
 }

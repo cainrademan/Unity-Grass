@@ -48,15 +48,15 @@ Material:
         m_Scale: {x: 500, y: 500}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
-        m_Scale: {x: 100, y: 100}
+        m_Texture: {fileID: 2800000, guid: fb81da8d657886242a5832dcbd24ec32, type: 3}
+        m_Scale: {x: 50, y: 50}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: cfdc474af4fadca4d8bd653796f6a8f8, type: 3}
+        m_Texture: {fileID: 2800000, guid: 96018269fc1ffc34e935a325cb9bdbee, type: 3}
         m_Scale: {x: 20, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -76,7 +76,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
-    - _HeightMul: 22.35
+    - _HeightMul: 22.5
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -88,6 +88,6 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.17726684, g: 1, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
