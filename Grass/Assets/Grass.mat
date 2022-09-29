@@ -85,25 +85,25 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DistantDiff: 0.22
-    - _DistantSpec: 0.22
+    - _DistantDiff: 0.5
+    - _DistantSpec: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _GlossScale: 16.47
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 0.66
+    - _Kamb: 0.72
     - _Kd: 0
-    - _Kspec: 1.53
-    - _LengthShadingBaseLuminance: 0.3
-    - _LengthShadingStrength: 1
+    - _Kspec: 3.26
+    - _LengthShadingBaseLuminance: 0.45
+    - _LengthShadingStrength: 0.71
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Shininess: 4
     - _ShininessLower: 5
-    - _ShininessUpper: 10
+    - _ShininessUpper: 6
     - _SinOffsetRange: 1
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
