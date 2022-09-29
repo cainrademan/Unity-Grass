@@ -6,9 +6,11 @@ Shader "Unlit/Grass"
         _GrassAlbedo("Grass albedo", 2D) = "white" {}
         _AlbedoScale("_AlbedoScale", Float) = 0
         _GrassGloss("Grass gloss", 2D) = "white" {}
-        _WindTex("_WindTex", 2D) = "white" {}
-        _WindStrength("_WindStrength", Float) = 1
-        _WindSpeed("_WindSpeed", Float) = 1
+        //_WindTex("_WindTex", 2D) = "white" {}
+        //_WindStrength("_WindStrength", Float) = 1
+        //_BigWindSpeed("_BigWindSpeed", Float) = 1
+        //_SmallWindSpeed("_SmallWindSpeed", Float) = 1
+        //_WindRotateAmount("_WindRotateAmount", Float) = 1
         _GlossScale("_GlossScale", Float) = 0
         _AlbedoStrength("_AlbedoStrength", Float) = 0
         _TaperAmount ("_TaperAmount", Float) = 0
@@ -56,8 +58,8 @@ Shader "Unlit/Grass"
             struct GrassBlade {
 
                 float3 position;
-                float2 facing;
-                //float rotAngle;
+                //float2 facing;
+                float rotAngle;
                 float hash;
                 float height;
                 float width;
@@ -123,7 +125,9 @@ Shader "Unlit/Grass"
             float _DistantDiff;
             float _DistantSpec;
             float _WindStrength;
-            float _WindSpeed;
+            float _SmallWindSpeed;
+            float _BigWindSpeed;
+            float _WindRotateAmount;
 
             float3x3 AngleAxis3x3(float angle, float3 axis)
 	        {
@@ -233,13 +237,45 @@ Shader "Unlit/Grass"
 
 
                 //Animation
+                //float2 grassFacing = blade.facing;
+
+                //float2 worldUV = blade.position.xz;
+
+                //float2 bigWindUV = worldUV * (_WindTex_ST.xx);
+
+                //bigWindUV += _Time * float2(1,0) *_BigWindSpeed;
+
+                //float bigWind = (tex2Dlod( _WindTex, float4(bigWindUV.x, bigWindUV.y, 0,0)).x   );
+
+                //float bigTheta = ((bigWind*2)-1)* 3.14159;
+
+                //float2 bigWindDir = (float2(cos(bigTheta), sin(bigTheta)));
+
+                //float2 grassSideVec = normalize(float2(-grassFacing.y, grassFacing.x));
+
+                //float rotateBladeFromBigWindAmount = dot(grassSideVec, bigWindDir); 
+
+                //float bigWindRotateAngle = rotateBladeFromBigWindAmount * (3.14159/2) * _WindRotateAmount;
+
+                //float2 smallWindUV = worldUV * (_WindTex_ST.yy);
+
+                //smallWindUV += _Time * float2(1,0) *_SmallWindSpeed;
+
+                //float smallWind = (tex2Dlod( _WindTex, float4(smallWindUV.x, smallWindUV.y, 0,0)).y   )*2-1;
+
+                //float smallWindRotateAngle = (smallWind)* 3.14159 * _WindStrength;
+
+                //float angle = atan2(grassFacing.y,grassFacing.x);
+
+                //angle += bigWindRotateAngle + smallWindRotateAngle;
+
                 float p1Weight = 0.33;
                 float p2Weight = 0.66;
                 float p3Weight = 1;
 
                 //float sinOffset = -0.003;
                 float hash= blade.hash;
-   
+                
                 float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
                 float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
                 float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
@@ -270,36 +306,43 @@ Shader "Unlit/Grass"
 
                 //float grassFacingAngle = blade.rotAngle;
 
-                float2 grassFacing = blade.facing;
-
-                float2 worldUV = blade.position.xz;
-
-                float2 windUV = worldUV * (_WindTex_ST.xx);
-                //float2 windUV = worldUV * (float2(_Test4,_Test4));
-
-                windUV += _Time * float2(1,0) *_WindSpeed;
-
-                //float2 windDir = normalize(tex2Dlod( _WindTex, float4(windUV.x, windUV.y, 0,0)).xy*2-1);
-                float2 windDir = tex2Dlod( _WindTex, float4(windUV.x, windUV.y, 0,0));
-                windDir.y = windDir.y *2 - 1;
-                windDir = normalize(windDir);
                 
+
+                             
+
+                //o.windTest = float3(windDir,0);
+
+                
+                
+
+                //windRotateAngle = bigTheta *_WindStrength;
+
+                //float3 testCol;
+
+                //if (rotateBladeFromWindAmount >= 0){
+                
+                //    testCol = float3(0,0,1) * rotateBladeFromWindAmount;
+                
+                //}
+                //else {
+                
+                //    testCol = float3(1,0,0) * -rotateBladeFromWindAmount;
+                
+                //}
+
+
+               
+               
 
                 //float2 combinedDir = normalize(lerp(grassFacing, windDir, _Test4));
 
-                float2 combinedDir = slerp(grassFacing, windDir, _Test4);
+                //float2 combinedDir = slerp(grassFacing, windDir, _Test4);
 
-                //combinedDir = grassFacing;
+                //combinedDir = windDir;
 
-                float angle = atan2(combinedDir.y,combinedDir.x);
+                //grassFacing = windDir;                
 
-                //float windAngle = atan2(windDir.y,windDir.x);
-
-                //windAngle = fmod(windAngle + 2*3.14159, 2*3.14159);
-
-                //windAngle = (windAngle < 0) ? (windAngle + 2*3.14159) : windAngle;
-
-               //grassFacingAngle = lerp(grassFacingAngle, grassFacingAngle+windAngle, _Test4);
+                float angle = blade.rotAngle;
 
                 float3x3 rotMat = AngleAxis3x3(angle, float3(0,1,0));
 
@@ -333,8 +376,9 @@ Shader "Unlit/Grass"
                 //float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
 
                 //float3 finalNorm = lerp(normal, surfaceNorm, surfaceNormalBlendSmoothstep);
-                o.windTest = float3((combinedDir.xy+1)/2,0);
-                //o.windTest = float3(windAngle.xxx/(2*3.14159));
+                
+                
+                //o.windTest = testCol;
                 o.uv = uv;
                 o.worldPos = newPos;
                 o.surfaceNorm = surfaceNorm;

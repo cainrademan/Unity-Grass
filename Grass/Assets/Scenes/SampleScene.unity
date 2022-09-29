@@ -235,6 +235,13 @@ MonoBehaviour:
   plane: {fileID: 618272737}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
   cam: {fileID: 963194227}
+  WindTex: {fileID: 2800000, guid: 0c92ef3cbd716164da5f6799a9ce8614, type: 3}
+  _BigWindSpeed: 0.01
+  _BigWindScale: 0.001
+  _BigWindRotateAmount: 1
+  _SmallWindSpeed: 0.02
+  _SmallWindScale: 0.005
+  _SmallWindRotateAmount: 0.2
   _VertexPlacementPower: 1
   _GrassBaseHeight: 1.38
   _GrassHeightRandom: 0.1
@@ -252,7 +259,7 @@ MonoBehaviour:
   _DistanceCullMinimumGrassAmount: 0.4
   DISTANCE_CULL_ENABLED: 1
   _Test: 1.71
-  _Test2: 0.21
+  _Test2: 0.5
   heightMap: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
