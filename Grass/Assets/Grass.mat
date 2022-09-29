@@ -72,8 +72,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _WindTex:
-        m_Texture: {fileID: 2800000, guid: 3f0fa1cf5b5b0164abc2e3b04b4e3920, type: 3}
-        m_Scale: {x: 0.01, y: 100000}
+        m_Texture: {fileID: 2800000, guid: 0c92ef3cbd716164da5f6799a9ce8614, type: 3}
+        m_Scale: {x: 0.001, y: 0.01}
         m_Offset: {x: -1, y: -1}
     m_Ints: []
     m_Floats:
@@ -81,19 +81,20 @@ Material:
     - _AlbedoStrength: 1.05
     - _AmbientLight: 1.32
     - _BaseShadowStrength: 0.61
+    - _BigWindSpeed: 0.1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DistantDiff: 0.84
-    - _DistantSpec: 1.55
+    - _DistantDiff: 0.22
+    - _DistantSpec: 0.22
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _GlossScale: 16.47
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 0.36
-    - _Kd: 0.75
-    - _Kspec: 3.86
+    - _Kamb: 0.66
+    - _Kd: 0
+    - _Kspec: 1.53
     - _LengthShadingBaseLuminance: 0.3
     - _LengthShadingStrength: 1
     - _Metallic: 0
@@ -102,22 +103,24 @@ Material:
     - _Parallax: 0.02
     - _Shininess: 4
     - _ShininessLower: 5
-    - _ShininessUpper: 6
+    - _ShininessUpper: 10
     - _SinOffsetRange: 1
+    - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _TaperAmount: 0.55
     - _Test: 0
     - _Test2: 70
-    - _Test3: 1.22
-    - _Test4: 0.75
+    - _Test3: 1
+    - _Test4: 0.7
     - _UVSec: 0
-    - _WaveAmplitude: 17.05
+    - _WaveAmplitude: 20
     - _WavePower: 1
     - _WaveSpeed: 60
-    - _WindSpeed: 1.54
-    - _WindStrength: 0.59
+    - _WindRotateAmount: 1
+    - _WindSpeed: 0.1
+    - _WindStrength: 0.1
     - _ZWrite: 1
     - __BaseShadowStrength: 2.34
     - _a: 1.92

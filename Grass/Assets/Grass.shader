@@ -6,9 +6,11 @@ Shader "Unlit/Grass"
         _GrassAlbedo("Grass albedo", 2D) = "white" {}
         _AlbedoScale("_AlbedoScale", Float) = 0
         _GrassGloss("Grass gloss", 2D) = "white" {}
-        _WindTex("_WindTex", 2D) = "white" {}
-        _WindStrength("_WindStrength", Float) = 1
-        _WindSpeed("_WindSpeed", Float) = 1
+        //_WindTex("_WindTex", 2D) = "white" {}
+        //_WindStrength("_WindStrength", Float) = 1
+        //_BigWindSpeed("_BigWindSpeed", Float) = 1
+        //_SmallWindSpeed("_SmallWindSpeed", Float) = 1
+        //_WindRotateAmount("_WindRotateAmount", Float) = 1
         _GlossScale("_GlossScale", Float) = 0
         _AlbedoStrength("_AlbedoStrength", Float) = 0
         _TaperAmount ("_TaperAmount", Float) = 0
@@ -56,8 +58,8 @@ Shader "Unlit/Grass"
             struct GrassBlade {
 
                 float3 position;
-                float2 facing;
-                //float rotAngle;
+                //float2 facing;
+                float rotAngle;
                 float hash;
                 float height;
                 float width;
@@ -123,7 +125,9 @@ Shader "Unlit/Grass"
             float _DistantDiff;
             float _DistantSpec;
             float _WindStrength;
-            float _WindSpeed;
+            float _SmallWindSpeed;
+            float _BigWindSpeed;
+            float _WindRotateAmount;
 
             float3x3 AngleAxis3x3(float angle, float3 axis)
 	        {
@@ -232,14 +236,13 @@ Shader "Unlit/Grass"
                 p2 += bezCtrlOffsetDir * bend * _p2Flexibility;
 
 
-                //Animation
                 float p1Weight = 0.33;
                 float p2Weight = 0.66;
                 float p3Weight = 1;
 
                 //float sinOffset = -0.003;
                 float hash= blade.hash;
-   
+                
                 float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
                 float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
                 float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
@@ -266,58 +269,15 @@ Shader "Unlit/Grass"
                 curvedNormal = normalize(curvedNormal);
 
                 float width = (blade.width) * (1-_TaperAmount*t);
-                newPos.z += side * width;
+                newPos.z += side * width;               
 
-                //float grassFacingAngle = blade.rotAngle;
-
-                float2 grassFacing = blade.facing;
-
-                float2 worldUV = blade.position.xz;
-
-                float2 windUV = worldUV * (_WindTex_ST.xx);
-                //float2 windUV = worldUV * (float2(_Test4,_Test4));
-
-                windUV += _Time * float2(1,0) *_WindSpeed;
-
-                //float2 windDir = normalize(tex2Dlod( _WindTex, float4(windUV.x, windUV.y, 0,0)).xy*2-1);
-                float2 windDir = tex2Dlod( _WindTex, float4(windUV.x, windUV.y, 0,0));
-                windDir.y = windDir.y *2 - 1;
-                windDir = normalize(windDir);
-                
-
-                //float2 combinedDir = normalize(lerp(grassFacing, windDir, _Test4));
-
-                float2 combinedDir = slerp(grassFacing, windDir, _Test4);
-
-                //combinedDir = grassFacing;
-
-                float angle = atan2(combinedDir.y,combinedDir.x);
-
-                //float windAngle = atan2(windDir.y,windDir.x);
-
-                //windAngle = fmod(windAngle + 2*3.14159, 2*3.14159);
-
-                //windAngle = (windAngle < 0) ? (windAngle + 2*3.14159) : windAngle;
-
-               //grassFacingAngle = lerp(grassFacingAngle, grassFacingAngle+windAngle, _Test4);
+                float angle = blade.rotAngle;
 
                 float3x3 rotMat = AngleAxis3x3(angle, float3(0,1,0));
 
-                //float3x3 windMat = AngleAxis3x3(windAngle*_WindStrength, float3(0,1,0));
-                //float2x2 rotMat2 = rotate2d(grassFacingAngle);
-
-                //normal = mul(mul(rotMat,normal), windMat);
-                //curvedNormal = mul(mul(rotMat,curvedNormal), windMat);
-                //newPos = mul(mul(rotMat,newPos), windMat);
                 normal = mul(rotMat,normal);
                 curvedNormal = mul(rotMat,curvedNormal);
                 newPos = mul(rotMat,newPos);
-
-                //normal = normalize(normal);
-
-                //normal.xz = mul(rotMat2,normal.xz);
-
-                //newPos.xz = mul(rotMat2,newPos.xz);
                 
 
                 newPos += blade.position;
@@ -333,8 +293,9 @@ Shader "Unlit/Grass"
                 //float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
 
                 //float3 finalNorm = lerp(normal, surfaceNorm, surfaceNormalBlendSmoothstep);
-                o.windTest = float3((combinedDir.xy+1)/2,0);
-                //o.windTest = float3(windAngle.xxx/(2*3.14159));
+                
+                
+                //o.windTest = testCol;
                 o.uv = uv;
                 o.worldPos = newPos;
                 o.surfaceNorm = surfaceNorm;
@@ -375,20 +336,12 @@ Shader "Unlit/Grass"
 
                 n= normalize(n);
 
-                //n = facing > 0 ? n : float3(-n.x, -n.y, n.z);
-
-
-                
-                //n = facing > 0 ? n : -n;
                 float3 l = normalize(_WorldSpaceLightPos0);
 
                 float gloss = tex2D(_GrassGloss, i.uv*float2(_GlossScale, 1));
 
-
-                //float reflectMask = round(saturate(dot(l,n)));
-
-
                 float3 r = normalize(reflect(-l,n)) ;
+
                 float3 v = normalize(i.viewDir);
 
                 float ks = 1;
@@ -399,15 +352,6 @@ Shader "Unlit/Grass"
 
                 float spec = _Kspec* pow(saturate(dot(r,v)),shininess);
 
-                //S
-
-
-                //float spec = saturate(dot(r, l));
-
-                //float3 H = normalize(v + l); // Half direction
-                //float NdotH = max(0, dot(n, H));
-                //float specular = pow(NdotH, _ShininessUpper) * _Kspec;
-
                 _Kd = lerp(_Kd, _DistantDiff, surfaceNormalBlendSmoothstep);
 
                 float diff =  _Kd * saturate(dot(n,l));
@@ -416,34 +360,19 @@ Shader "Unlit/Grass"
                                 diff 
                                + spec;
                 
-
-                //light = light);
-
-                //light = saturate(light);
                  
                 float lengthShading =  (i.color.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
 
                 light *= lengthShading;
 
-                //light = saturate(light);
-
                 float grassAlbedo =  (tex2D(_GrassAlbedo, i.uv*float2(_AlbedoScale, 1))     ) ;
 
                 float noAlbedoMask = floor(grassAlbedo);
 
-                
-
-
                 grassAlbedo = saturate(grassAlbedo*_AlbedoStrength+noAlbedoMask);
-
-
-
 
                 fixed4 col = lerp(_BottomColor,_TopColor, i.color.r) *light* grassAlbedo;
 
-                //col = fixed4(i.windTest,1);
-
-                //col = fixed4(shininess.xxx,1);
 
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);

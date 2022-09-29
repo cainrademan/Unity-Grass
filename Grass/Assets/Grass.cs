@@ -30,6 +30,15 @@ public class Grass : MonoBehaviour
 
     private const int ARGS_STRIDE = sizeof(int) * 4;
 
+    public Texture WindTex;
+
+    public float _BigWindSpeed;
+    public float _BigWindScale;
+    public float _BigWindRotateAmount;
+    public float _SmallWindSpeed;    
+    public float _SmallWindScale;
+    public float _SmallWindRotateAmount;
+
     //public GameObject prefab;
     public float _VertexPlacementPower;
     public float _GrassBaseHeight;
@@ -77,6 +86,8 @@ public class Grass : MonoBehaviour
 
         worldSpaceCameraPositionId = Shader.PropertyToID("_WSpaceCameraPos"),
 
+        windTexID = Shader.PropertyToID("WindTex"),
+
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
@@ -121,6 +132,17 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat("_Test2", _Test2);
         computeShader.SetFloat("_DistanceCullMinimumGrassAmount", _DistanceCullMinimumGrassAmount);
 
+
+        computeShader.SetVector("_Time", Shader.GetGlobalVector("_Time"));
+
+        computeShader.SetFloat("_BigWindSpeed", _BigWindSpeed);
+        computeShader.SetFloat("_BigWindScale", _BigWindScale);
+        computeShader.SetFloat("_BigWindRotateAmount", _BigWindRotateAmount);
+        computeShader.SetFloat("_SmallWindSpeed", _SmallWindSpeed);
+        computeShader.SetFloat("_SmallWindScale", _SmallWindScale);
+        computeShader.SetFloat("_SmallWindRotateAmount", _SmallWindRotateAmount);
+
+
         Matrix4x4 projMat = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);
 
         Matrix4x4 VP = projMat * cam.worldToCameraMatrix;
@@ -143,7 +165,7 @@ public class Grass : MonoBehaviour
     void Awake()
     {
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 13, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 12, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -254,6 +276,13 @@ public class Grass : MonoBehaviour
         computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
 
         computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
+
+
+        computeShader.SetTexture(0, windTexID, WindTex);
+        
+        
+
+
         UpdateGPUParams();
     }
 
