@@ -278,13 +278,6 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
 
 
-        //    public float _BigWindSpeed;
-        //public float _BigWindScale;
-        //public float _BigWindRotateAmount;
-        //public float _SmallWindSpeed;
-        //public float _SmallWindScale;
-        //public float _SmallWindRotateAmount;
-
         computeShader.SetTexture(0, windTexID, WindTex);
         
         

@@ -168,11 +168,12 @@ void Main (uint3 id : SV_DispatchThreadID)
 
     if (id.x < _Resolution && id.y < _Resolution){
 
-
+        //Calculate xz position
         float3 position = float3(id.x,0,id.y)*_GrassSpacing - _PlaneCentre;
         
         float2 hash = hashwithoutsine22(id.xy);
 
+        //Jitter xz
         float2 jitter = ((hash*2)-1 ) * _JitterStrength;
 
         position.xz += jitter;
@@ -180,7 +181,8 @@ void Main (uint3 id : SV_DispatchThreadID)
         float3 bitangent = float3(1, 0, 0);
         float3 tangent   = float3(0, 0, 1);
 
-
+        //Get y height from heightmap
+        // Also calc surface normal from height map. Probably better to read from a texture
         float3 vertexBitangent = getTransformedVertex(position + bitangent*0.01);
         float3 vertexTangent = getTransformedVertex(position + tangent*0.01);
         float3 raisedVertex = getTransformedVertex(position);
@@ -193,16 +195,17 @@ void Main (uint3 id : SV_DispatchThreadID)
 
 
         
-
+        //Get clipPos for easier frustum culling in clip space
         float4 clipPos = mul(_VP_MATRIX, float4(raisedVertex,1));
 
-
+        //Frustum culling
         uint isInFrustum = FrustumCull(clipPos);
 
         uint distanceCull = 1;
 
         float3 posToCam =  normalize(_WSpaceCameraPos - raisedVertex);
 
+        //Distance culling
         #if DISTANCE_CULL_ENABLED
 
             distanceCull = DistanceCull(raisedVertex, hash.x, norm, posToCam);
@@ -211,6 +214,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         if (isInFrustum == 1 && distanceCull == 1){
 
+            //Start building grassblade struct
             GrassBlade blade;
 
             blade.position = raisedVertex;
@@ -220,10 +224,9 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
             
-            //float2 bladeFacing = float2(1,0);
-            //float pi = 3.14159265;
 
-
+            //----Attempt to tilt blades that are orthogonal to camera
+            //I think it is better to do this in view space
 
             //float d = distance(raisedVertex, _WSpaceCameraPos);
 
@@ -231,37 +234,23 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             //float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
 
-
             //float orthogonalAngleOffset = smoothstep(_Test2, 0, viewAlignment);
 
             //orthogonalAngleOffset*=s;
 
-
             //bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
-
-           //float2 bladeFacing = float2(1,0);
 
            //float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
 
-           //float grassFacingAngle = 0 + rand(id.xxy);
 
-           float grassFacingAngle = 0;
-
-            //blade.rotAngle = grassFacingAngle;
-
-            //blade.facing = bladeFacing;
-
-            //bladeFacing = float2(1,0);
-
-            //blade.facing = normalize(lerp(float2(1,0), bladeFacing, _Test2));  
-            //---------
-
+                //---Calculate wind, comprised of big wind for overall motion and small wind for smaller details
                 float2 worldUV = raisedVertex.xz;
 
                 float2 bigWindUV = worldUV * (_BigWindScale);
 
                 bigWindUV += _Time.y * float2(1,0) *_BigWindSpeed;
 
+                //Alternate method for big wind using same method as small wind
                 //float bigWind = (tex2Dlod( _WindTex, float4(bigWindUV.x, bigWindUV.y, 0,0)).x   );
                 
                 //float bigWind = WindTex.SampleLevel(samplerWindTex, bigWindUV, 0).x*2-1;              
@@ -319,5 +308,4 @@ void Main (uint3 id : SV_DispatchThreadID)
         
     }
 
-    //Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
 }
