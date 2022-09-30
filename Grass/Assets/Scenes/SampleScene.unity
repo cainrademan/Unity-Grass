@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ff38b2270b4526499416b006451d35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 700
+  resolution: 500
   plane: {fileID: 618272737}
   computeShader: {fileID: 7200000, guid: e5d8eae77f4353e4ea73f713d6da57bc, type: 3}
   cam: {fileID: 963194227}
@@ -270,19 +270,19 @@ MonoBehaviour:
   clumpParameters:
   - baseHeight: 1.38
     heightRandom: 0.1
-    baseWidth: 0.03
+    baseWidth: 0.04
     widthRandom: 0.01
     baseTilt: 0.85
     tiltRandom: 0.07
     baseBend: 0.18
     bendRandom: 0.12
-  - baseHeight: 2.38
-    heightRandom: 0.1
-    baseWidth: 0.12
+  - baseHeight: 1.8
+    heightRandom: 0.5
+    baseWidth: 0.04
     widthRandom: 0.01
-    baseTilt: 0.85
+    baseTilt: 0.9
     tiltRandom: 0.07
-    baseBend: 0.18
+    baseBend: 0
     bendRandom: 0.12
 --- !u!4 &144754759
 Transform:

@@ -239,8 +239,8 @@ public class Grass : MonoBehaviour
             
         }
 
-        RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.R8);
-        RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.R8);
+        RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32);
+        RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32)   ;
         Graphics.Blit(startTex, clumpVoronoiTex, clumpingVoronoiMat, 0);
 
 
@@ -248,7 +248,7 @@ public class Grass : MonoBehaviour
 
 
         RenderTexture.active = clumpVoronoiTex;
-        Texture2D clumpTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.R8, false);
+        Texture2D clumpTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.ARGB32, false);
         clumpTex.ReadPixels(new Rect(0, 0, clumpTexWidth, clumpTexHeight), 0, 0);
         clumpTex.Apply();
         RenderTexture.active = null;

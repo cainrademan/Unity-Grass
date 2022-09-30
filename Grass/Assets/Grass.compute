@@ -203,6 +203,20 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         position.xz += jitter;
 
+        float2 clumpUV = position.xz * float2(_Test2.xx);
+
+        float3 clumpData = ClumpTex.SampleLevel(samplerClumpTex, clumpUV, 0);
+
+        float clumpParamsIndex = clumpData.x;
+
+
+
+        float2 clumpCentre = (clumpData.yz + floor(clumpUV))/float2(_Test2.xx);
+
+        position.xz = lerp(position.xz, clumpCentre, _Test);
+
+        float2 worldUV = position.xz;
+
         float3 bitangent = float3(1, 0, 0);
         float3 tangent   = float3(0, 0, 1);
 
@@ -239,11 +253,28 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         if (isInFrustum == 1 && distanceCull == 1){
 
+            ClumpParametersStruct bladeParameters = _ClumpParameters[int(clumpParamsIndex)]; 
+
+            float baseHeight = bladeParameters.baseHeight;
+            float heightRandom = bladeParameters.heightRandom;
+            float baseWidth = bladeParameters.baseWidth;
+            float widthRandom = bladeParameters.widthRandom;
+            float baseTilt = bladeParameters.baseTilt;
+            float tiltRandom = bladeParameters.tiltRandom;
+            float baseBend = bladeParameters.baseBend;
+            float bendRandom = bladeParameters.bendRandom;
+
             //Start building grassblade struct
             GrassBlade blade;
 
-            blade.position = raisedVertex;
 
+
+            //float2 positionXZ = lerp(clumpCentre, );
+
+            blade.position = raisedVertex;
+            
+
+            
 
             //float2 bladeFacing = normalize(float2(rand(id.xxy),rand(id.yxx) ) *2 - 1); 
 
@@ -269,7 +300,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
 
                 //---Calculate wind, comprised of big wind for overall motion and small wind for smaller details
-                float2 worldUV = raisedVertex.xz;
+                
 
                 float2 bigWindUV = worldUV * (_BigWindScale);
 
@@ -305,7 +336,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
                 float angle = atan2(bladeFacing.y,bladeFacing.x);
 
-                angle += bigWindRotateAngle + smallWindRotateAngle;
+                //angle += bigWindRotateAngle + smallWindRotateAngle;
 
 
 
@@ -313,21 +344,11 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.hash = rand(id.xyx);
 
 
-            float c = ClumpTex.SampleLevel(samplerClumpTex, worldUV * float2(_Test2.xx), 0).x;
+            
 
             //READ FROM CLUMP PARAMETERS
 
-            ClumpParametersStruct bladeParameters = _ClumpParameters[int(c)]; 
-
-            float baseHeight = bladeParameters.baseHeight;
-            float heightRandom = bladeParameters.heightRandom;
-            float baseWidth = bladeParameters.baseWidth;
-            float widthRandom = bladeParameters.widthRandom;
-            float baseTilt = bladeParameters.baseTilt;
-            float tiltRandom = bladeParameters.tiltRandom;
-            float baseBend = bladeParameters.baseBend;
-            float bendRandom = bladeParameters.bendRandom;
-            //float baseHeight = _ClumpParameters[0].baseHeight;
+                        //float baseHeight = _ClumpParameters[0].baseHeight;
             //float heightRandom = _ClumpParameters[0].heightRandom;
             //float baseWidth = _ClumpParameters[0].baseWidth;
             //float widthRandom = _ClumpParameters[0].widthRandom;
@@ -356,7 +377,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             //blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
             //blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
             blade.surfaceNorm = norm;
-            blade.color = c.xxx;
+            blade.color = clumpParamsIndex.xxx;
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);
 

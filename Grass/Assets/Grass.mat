@@ -78,7 +78,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlbedoScale: 9
-    - _AlbedoStrength: 1.05
+    - _AlbedoStrength: 1.67
     - _AmbientLight: 1.32
     - _BaseShadowStrength: 0.61
     - _BigWindSpeed: 0.1
@@ -92,9 +92,9 @@ Material:
     - _GlossScale: 16.47
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 0.72
-    - _Kd: 0
-    - _Kspec: 3.26
+    - _Kamb: 0.63
+    - _Kd: 1
+    - _Kspec: 1.45
     - _LengthShadingBaseLuminance: 0.45
     - _LengthShadingStrength: 0.71
     - _Metallic: 0
@@ -102,8 +102,8 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Shininess: 4
-    - _ShininessLower: 5
-    - _ShininessUpper: 6
+    - _ShininessLower: 1
+    - _ShininessUpper: 10
     - _SinOffsetRange: 1
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0

@@ -249,9 +249,9 @@ Shader "Unlit/Grass"
                 float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
 
                 ////_P0 += bezCtrlOffsetDir*  pOffset;
-                p1 += bezCtrlOffsetDir*  p1ffset;
-                p2 += bezCtrlOffsetDir*  p2ffset;
-                p3 += bezCtrlOffsetDir*  p3ffset;
+                //p1 += bezCtrlOffsetDir*  p1ffset;
+                //p2 += bezCtrlOffsetDir*  p2ffset;
+                //p3 += bezCtrlOffsetDir*  p3ffset;
 
 
                 //Evaluate Bezier curve
