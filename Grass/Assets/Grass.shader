@@ -303,7 +303,8 @@ Shader "Unlit/Grass"
                 o.viewDir = normalize(_WSpaceCameraPos-newPos);
                 o.curvedNorm = normalize(curvedNormal);
                 o.originalNorm = normalize(normal);
-                o.color = fixed4(blade.color,1);
+                o.color = color;
+                //o.color = fixed4(blade.color,1);
                 o.vertex = mul(UNITY_MATRIX_VP, float4(newPos, 1));
 
                 UNITY_TRANSFER_FOG(o,o.vertex);
@@ -374,7 +375,7 @@ Shader "Unlit/Grass"
 
                 fixed4 col = lerp(_BottomColor,_TopColor, i.color.r) *light* grassAlbedo;
 
-                col = i.color;
+                //col = i.color;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

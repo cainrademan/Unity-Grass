@@ -17,6 +17,29 @@ struct GrassBlade {
     float3 color;
 };
 
+
+struct ClumpParametersStruct {
+//Base height : float
+//Height random : float
+//Base width : float
+//Width random : float
+//Base tilt : float
+//Tilt random : float
+//Base bend : float
+//Bend random : float
+float baseHeight;
+float heightRandom;
+float baseWidth;
+float widthRandom;
+float baseTilt;
+float tiltRandom;
+float baseBend;
+float bendRandom;
+
+};
+
+StructuredBuffer<ClumpParametersStruct> _ClumpParameters;
+
 //RWStructuredBuffer<GrassBlade> _GrassBlades;
 AppendStructuredBuffer<GrassBlade> _GrassBlades;
 
@@ -291,15 +314,47 @@ void Main (uint3 id : SV_DispatchThreadID)
 
 
             float c = ClumpTex.SampleLevel(samplerClumpTex, worldUV * float2(_Test2.xx), 0).x;
-            blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
-            //blade.height = c*_Test;
 
-            blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
+            //READ FROM CLUMP PARAMETERS
 
+            ClumpParametersStruct bladeParameters = _ClumpParameters[int(c)]; 
+
+            float baseHeight = bladeParameters.baseHeight;
+            float heightRandom = bladeParameters.heightRandom;
+            float baseWidth = bladeParameters.baseWidth;
+            float widthRandom = bladeParameters.widthRandom;
+            float baseTilt = bladeParameters.baseTilt;
+            float tiltRandom = bladeParameters.tiltRandom;
+            float baseBend = bladeParameters.baseBend;
+            float bendRandom = bladeParameters.bendRandom;
+            //float baseHeight = _ClumpParameters[0].baseHeight;
+            //float heightRandom = _ClumpParameters[0].heightRandom;
+            //float baseWidth = _ClumpParameters[0].baseWidth;
+            //float widthRandom = _ClumpParameters[0].widthRandom;
+            //float baseTilt = _ClumpParameters[0].baseTilt;
+            //float tiltRandom = _ClumpParameters[0].tiltRandom;
+            //float baseBend = _ClumpParameters[0].baseBend;
+            //float bendRandom = _ClumpParameters[0].bendRandom;
+            //float baseHeight = _ClumpParameters[1].baseHeight;
+            //float heightRandom = _ClumpParameters[1].heightRandom;
+            //float baseWidth = _ClumpParameters[1].baseWidth;
+            //float widthRandom = _ClumpParameters[1].widthRandom;
+            //float baseTilt = _ClumpParameters[1].baseTilt;
+            //float tiltRandom = _ClumpParameters[1].tiltRandom;
+            //float baseBend = _ClumpParameters[1].baseBend;
+            //float bendRandom = _ClumpParameters[1].bendRandom;
+
+            blade.height = baseHeight + remap01_neg11(  rand(id.xxy) ) * heightRandom;
+            blade.width = baseWidth + remap01_neg11(  rand(id.yxx) ) * widthRandom;
             //0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
-            blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
-            blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
+            blade.tilt = baseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * tiltRandom;
+            blade.bend = baseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * bendRandom;
 
+            //blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
+            //blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
+            ////0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
+            //blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
+            //blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
             blade.surfaceNorm = norm;
             blade.color = c.xxx;
             //_GrassBlades[_2DIdTo1D(id)] = blade;

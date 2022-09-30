@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -27,6 +28,8 @@ public class Grass : MonoBehaviour
     ComputeBuffer meshUvs;
 
     ComputeBuffer argsBuffer;
+
+    ComputeBuffer clumpParametersBuffer;
 
     private const int ARGS_STRIDE = sizeof(int) * 4;
 
@@ -66,6 +69,7 @@ public class Grass : MonoBehaviour
     public int clumpTexWidth;
     public Material clumpingVoronoiMat;
 
+
     static readonly int
         grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
@@ -91,6 +95,8 @@ public class Grass : MonoBehaviour
 
         worldSpaceCameraPositionId = Shader.PropertyToID("_WSpaceCameraPos"),
 
+        clumpParametersId = Shader.PropertyToID("_ClumpParameters"),
+
         windTexID = Shader.PropertyToID("WindTex"),
         clumpTexID = Shader.PropertyToID("ClumpTex"),
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
@@ -108,6 +114,31 @@ public class Grass : MonoBehaviour
     MeshFilter meshFilter;
 
     Mesh clonedMesh;
+
+    [Serializable]
+    public struct ClumpParametersStruct
+    {
+        //Base height : float
+        //Height random : float
+        //Base width : float
+        //Width random : float
+        //Base tilt : float
+        //Tilt random : float
+        //Base bend : float
+        //Bend random : float
+        public float baseHeight;
+        public float heightRandom;
+        public float baseWidth;
+        public float widthRandom;
+        public float baseTilt;
+        public float tiltRandom;
+        public float baseBend;
+        public float bendRandom;
+
+    };
+
+    public List<ClumpParametersStruct> clumpParameters;
+    ClumpParametersStruct[] clumpParametersArray;
 
     Bounds bounds;
     void UpdateGPUParams()
@@ -172,6 +203,24 @@ public class Grass : MonoBehaviour
         numInstances = resolution * resolution;
         grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 15, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
+
+    }
+
+    public void updateGrassArtistParameters() {
+
+        clumpParametersArray = new ClumpParametersStruct[clumpParameters.Count];
+
+        for (int i = 0; i < clumpParameters.Count; i++)
+        {
+
+            clumpParametersArray[i] = clumpParameters[i];
+
+
+        }
+
+        clumpParametersBuffer = new ComputeBuffer(2, sizeof(float) * 8);
+        clumpParametersBuffer.SetData(clumpParametersArray);
+        computeShader.SetBuffer(0, clumpParametersId, clumpParametersBuffer);
 
     }
 
@@ -303,9 +352,45 @@ public class Grass : MonoBehaviour
 
 
         computeShader.SetTexture(0, windTexID, WindTex);
-        
-        
 
+        //Set Clump parameter buffer
+        //ClumpParametersStruct[] parameters = new ClumpParametersStruct[2];
+
+        //ClumpParametersStruct parm1 = new ClumpParametersStruct();
+        //parm1.baseHeight = 1.38f;
+        //parm1.heightRandom = 0.1f;
+        //parm1.baseWidth = 0.03f;
+        //parm1.widthRandom = 0.01f;
+        //parm1.baseTilt = 0.85f;
+        //parm1.tiltRandom = 0.07f;
+        //parm1.baseBend = 0.18f;
+        //parm1.bendRandom = 0.12f;
+
+        //ClumpParametersStruct parm2 = new ClumpParametersStruct();
+        //parm2.baseHeight = 2.38f;
+        //parm2.heightRandom = 0.1f;
+        //parm2.baseWidth = 0.12f;
+        //parm2.widthRandom = 0.01f;
+        //parm2.baseTilt = 0.85f;
+        //parm2.tiltRandom = 0.07f;
+        //parm2.baseBend = 0.18f;
+        //parm2.bendRandom = 0.12f;
+
+        //parameters[0] = parm1;
+        //parameters[1] = parm2;
+        //float baseHeight;
+        //float heightRandom;
+        //float baseWidth;
+        //float widthRandom;
+        //float baseTilt;
+        //float tiltRandom;
+        //float baseBend;
+        //float bendRandom;
+        //parameters[0] = new Clu
+
+        //parameters[0] = new float[8] { 1.38f,0.1f,0.03f,0.01f,0.85f,0.07f,0.18f,0.12f};
+        //parameters[1] = new float[8] { 2.38f, 0.1f, 0.12f, 0.01f, 0.85f, 0.07f, 0.18f, 0.12f };
+        updateGrassArtistParameters();
 
         UpdateGPUParams();
     }
@@ -325,6 +410,7 @@ public class Grass : MonoBehaviour
     {
 
         grassBladesBuffer.Dispose();
+        clumpParametersBuffer.Dispose();
         meshTriangles.Dispose();
         meshPositions.Dispose();
         meshColors.Dispose();

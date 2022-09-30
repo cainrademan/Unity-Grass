@@ -69,7 +69,7 @@ Shader "Hidden/ClumpingVoronoi"
 
                 float id;
 
-                float numClumps = 3;
+                float numClumps = 2;
 
                 for (int j =0; j < 40; j++){
                     float2 jj = float2(j,j);
@@ -85,7 +85,7 @@ Shader "Hidden/ClumpingVoronoi"
                     if (d<minDist){
                     
                         minDist = d;
-                        id = fmod(j,3)/3;
+                        id = fmod(j,3);
                     }
 
                 }

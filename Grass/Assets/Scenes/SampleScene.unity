@@ -267,6 +267,23 @@ MonoBehaviour:
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
   originalMesh: {fileID: 8254687373856176130, guid: ad2d1a75903d2034b9e0d40fc3ef5368, type: 3}
+  clumpParameters:
+  - baseHeight: 1.38
+    heightRandom: 0.1
+    baseWidth: 0.03
+    widthRandom: 0.01
+    baseTilt: 0.85
+    tiltRandom: 0.07
+    baseBend: 0.18
+    bendRandom: 0.12
+  - baseHeight: 2.38
+    heightRandom: 0.1
+    baseWidth: 0.12
+    widthRandom: 0.01
+    baseTilt: 0.85
+    tiltRandom: 0.07
+    baseBend: 0.18
+    bendRandom: 0.12
 --- !u!4 &144754759
 Transform:
   m_ObjectHideFlags: 0
