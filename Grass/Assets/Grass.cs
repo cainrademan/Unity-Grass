@@ -61,6 +61,11 @@ public class Grass : MonoBehaviour
 
     public float _Test;
     public float _Test2;
+
+    public int clumpTexHeight;
+    public int clumpTexWidth;
+    public Material clumpingVoronoiMat;
+
     static readonly int
         grassBladesBufferID = Shader.PropertyToID("_GrassBlades"),
         resolutionId = Shader.PropertyToID("_Resolution"),
@@ -87,7 +92,7 @@ public class Grass : MonoBehaviour
         worldSpaceCameraPositionId = Shader.PropertyToID("_WSpaceCameraPos"),
 
         windTexID = Shader.PropertyToID("WindTex"),
-
+        clumpTexID = Shader.PropertyToID("ClumpTex"),
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
@@ -165,7 +170,7 @@ public class Grass : MonoBehaviour
     void Awake()
     {
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 12, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 15, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -185,6 +190,25 @@ public class Grass : MonoBehaviour
             
         }
 
+        RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.R8);
+        RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.R8);
+        Graphics.Blit(startTex, clumpVoronoiTex, clumpingVoronoiMat, 0);
+
+
+        //Graphics.Blit(source,destination, clumpingVoronoiMat);
+
+
+        RenderTexture.active = clumpVoronoiTex;
+        Texture2D clumpTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.R8, false);
+        clumpTex.ReadPixels(new Rect(0, 0, clumpTexWidth, clumpTexHeight), 0, 0);
+        clumpTex.Apply();
+        RenderTexture.active = null;
+
+        computeShader.SetTexture(0, clumpTexID, clumpTex);
+
+        RenderTexture.ReleaseTemporary(startTex);
+        RenderTexture.ReleaseTemporary(clumpVoronoiTex);
+
         //var keywordSpace = computeShader.keywordSpace;
 
         //foreach (var localKeyword in keywordSpace.keywords)
@@ -197,7 +221,7 @@ public class Grass : MonoBehaviour
         //    //computeShader.SetKeyword(localKeyword, !state);
         //}
 
-        
+
 
         clonedMesh = new Mesh(); //2
 

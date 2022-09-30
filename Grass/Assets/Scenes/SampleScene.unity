@@ -259,7 +259,10 @@ MonoBehaviour:
   _DistanceCullMinimumGrassAmount: 0.4
   DISTANCE_CULL_ENABLED: 1
   _Test: 1.71
-  _Test2: 0.5
+  _Test2: 0.05
+  clumpTexHeight: 256
+  clumpTexWidth: 256
+  clumpingVoronoiMat: {fileID: 2100000, guid: 427f3176a375e484f86f3b548da71ba3, type: 2}
   heightMap: {fileID: 2800000, guid: d47878237f397a54882f5ecd11e45daf, type: 3}
   jitterStrength: 5
   material: {fileID: 2100000, guid: 03d7d9b77d057a8479e22eff0af7e0d1, type: 2}
@@ -506,7 +509,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2141c5c984e882c46be133aea677d575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: -462981019419857548, guid: b50db1054bc0be845be548aa6772b905, type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -630,9 +632,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 424e116bd375435479b100a65ce35869, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 200
-  obj: {fileID: 8229983413306286672, guid: 5ca3c65468e8a9540a62857988182613, type: 3}
-  mul: 5
 --- !u!4 &720218548
 Transform:
   m_ObjectHideFlags: 0
@@ -1029,13 +1028,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 42a40cfcaf8eddd448faea5600ff2b3b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 0
-  height: 0
+  width: 256
+  height: 256
   clumpingVoronoiMat: {fileID: 2100000, guid: 427f3176a375e484f86f3b548da71ba3, type: 2}
 --- !u!1 &1169331050
 GameObject:

@@ -14,6 +14,7 @@ struct GrassBlade {
     float tilt;
     float bend;
     float3 surfaceNorm;
+    float3 color;
 };
 
 //RWStructuredBuffer<GrassBlade> _GrassBlades;
@@ -62,7 +63,8 @@ float4 _Time;
 Texture2D HeightMap; 
 SamplerState samplerHeightMap;
 
-
+Texture2D ClumpTex; 
+SamplerState samplerClumpTex;
 
 
 //SamplerState my_linear_mirror_sample;
@@ -288,9 +290,9 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.hash = rand(id.xyx);
 
 
-
+            float c = ClumpTex.SampleLevel(samplerClumpTex, worldUV * float2(_Test2.xx), 0).x;
             blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
-
+            //blade.height = c*_Test;
 
             blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
 
@@ -299,7 +301,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
 
             blade.surfaceNorm = norm;
-
+            blade.color = c.xxx;
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);
 
