@@ -34,7 +34,8 @@ public class Grass : MonoBehaviour
     private const int ARGS_STRIDE = sizeof(int) * 4;
 
     public Texture WindTex;
-
+    [SerializeField, Range(0, 1)]
+    public float _WindControl;
     public float _BigWindSpeed;
     public float _BigWindScale;
     public float _BigWindRotateAmount;
@@ -96,9 +97,11 @@ public class Grass : MonoBehaviour
         worldSpaceCameraPositionId = Shader.PropertyToID("_WSpaceCameraPos"),
 
         clumpParametersId = Shader.PropertyToID("_ClumpParameters"),
+        clumpScaleId = Shader.PropertyToID("_ClumpScale"),
 
         windTexID = Shader.PropertyToID("WindTex"),
         clumpTexID = Shader.PropertyToID("ClumpTex"),
+        ClumpGradientMapId = Shader.PropertyToID("ClumpGradientMap"),
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
@@ -126,6 +129,9 @@ public class Grass : MonoBehaviour
         //Tilt random : float
         //Base bend : float
         //Bend random : float
+        //public Color clumpColor;
+        public float pullToCentre;
+        public float pointInSameDirection;
         public float baseHeight;
         public float heightRandom;
         public float baseWidth;
@@ -136,6 +142,22 @@ public class Grass : MonoBehaviour
         public float bendRandom;
 
     };
+    //--------
+    [Header("Gradient map parameters")]
+    public Vector2Int gradientMapDimensions = new Vector2Int(128, 32);
+    public Gradient gradient;
+
+    [Header("Enable testing")]
+    public bool testing = false;
+
+    //private SpriteRenderer spriteRenderer;
+    //public Material material;
+
+    public Texture2D texture;
+
+    public static int totalMaps = 0;
+    //---------
+    public float ClumpScale;
 
     public List<ClumpParametersStruct> clumpParameters;
     ClumpParametersStruct[] clumpParametersArray;
@@ -177,7 +199,7 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat("_SmallWindSpeed", _SmallWindSpeed);
         computeShader.SetFloat("_SmallWindScale", _SmallWindScale);
         computeShader.SetFloat("_SmallWindRotateAmount", _SmallWindRotateAmount);
-
+        computeShader.SetFloat("_WindControl", _WindControl);
 
         Matrix4x4 projMat = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);
 
@@ -189,24 +211,30 @@ public class Grass : MonoBehaviour
         int groups = Mathf.CeilToInt(resolution / 8f);
         computeShader.Dispatch(0, groups, groups, 1);
 
+        computeShader.SetFloat("_ClumpScale", ClumpScale);
 
         ComputeBuffer.CopyCount(grassBladesBuffer, argsBuffer, sizeof(int));
 
 
         material.SetBuffer("_GrassBlades", grassBladesBuffer);
         material.SetVector("_WSpaceCameraPos", cam.transform.position);
+        material.SetFloat("_WindControl",_WindControl);
 
     }
 
     void Awake()
     {
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 15, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 16, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
 
     public void updateGrassArtistParameters() {
+
+        //clumpParametersBuffer.Dispose();
+
+        Debug.Log(clumpParameters.Count);
 
         clumpParametersArray = new ClumpParametersStruct[clumpParameters.Count];
 
@@ -216,9 +244,7 @@ public class Grass : MonoBehaviour
             clumpParametersArray[i] = clumpParameters[i];
 
 
-        }
-
-        clumpParametersBuffer = new ComputeBuffer(2, sizeof(float) * 8);
+        }       
         clumpParametersBuffer.SetData(clumpParametersArray);
         computeShader.SetBuffer(0, clumpParametersId, clumpParametersBuffer);
 
@@ -238,6 +264,8 @@ public class Grass : MonoBehaviour
             computeShader.DisableKeyword("DISTANCE_CULL_ENABLED");
             
         }
+
+        clumpingVoronoiMat.SetFloat("_NumClumps", clumpParameters.Count);
 
         RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32);
         RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32)   ;
@@ -353,6 +381,8 @@ public class Grass : MonoBehaviour
 
         computeShader.SetTexture(0, windTexID, WindTex);
 
+        computeShader.SetTexture(0, ClumpGradientMapId, texture);
+
         //Set Clump parameter buffer
         //ClumpParametersStruct[] parameters = new ClumpParametersStruct[2];
 
@@ -390,6 +420,9 @@ public class Grass : MonoBehaviour
 
         //parameters[0] = new float[8] { 1.38f,0.1f,0.03f,0.01f,0.85f,0.07f,0.18f,0.12f};
         //parameters[1] = new float[8] { 2.38f, 0.1f, 0.12f, 0.01f, 0.85f, 0.07f, 0.18f, 0.12f };
+        Debug.Log(clumpParameters.Count);
+        clumpParametersBuffer = new ComputeBuffer(clumpParameters.Count, sizeof(float) * 10);
+        computeShader.SetFloat("_NumClumpParameters", clumpParameters.Count);
         updateGrassArtistParameters();
 
         UpdateGPUParams();
@@ -398,8 +431,30 @@ public class Grass : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (testing)
+        {
+            texture = new Texture2D(gradientMapDimensions.x, gradientMapDimensions.y);
+            texture.wrapMode = TextureWrapMode.Clamp;
+            for (int x = 0; x < gradientMapDimensions.x; x++)
+            {
+                Color color = gradient.Evaluate((float)x / (float)gradientMapDimensions.x);
+                for (int y = 0; y < gradientMapDimensions.y; y++)
+                {
+                    texture.SetPixel(x, y, color);
+                }
+            }
+            texture.Apply();
+            computeShader.SetTexture(0, ClumpGradientMapId, texture);
+            //if (material.HasProperty("_GradientMap"))
+            //{
+            //    material.SetTexture("_GradientMap", texture);
+            //}
+        }
+    
 
-        UpdateGPUParams();
+
+
+    UpdateGPUParams();
 
         //Graphics.DrawProcedural(material, bounds, MeshTopology.Triangles, meshTriangles.count, numInstances);
         Graphics.DrawProceduralIndirect(material, bounds, MeshTopology.Triangles, argsBuffer, 
@@ -418,3 +473,5 @@ public class Grass : MonoBehaviour
         argsBuffer.Dispose();
     }
 }
+
+

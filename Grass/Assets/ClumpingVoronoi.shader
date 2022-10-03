@@ -3,6 +3,7 @@ Shader "Hidden/ClumpingVoronoi"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _NumClumps("_NumClumps", Float) = 2
     }
     SubShader
     {
@@ -40,7 +41,7 @@ Shader "Hidden/ClumpingVoronoi"
             }
 
             sampler2D _MainTex;
-
+            float _NumClumps;
             float2 N22(float2 p){
             
                 float3 a = frac(p.xyx*float3(123.34,234.34,345.65));
@@ -49,7 +50,7 @@ Shader "Hidden/ClumpingVoronoi"
             
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 //fixed4 col = tex2D(_MainTex, i.uv);
                 // just invert the colors
@@ -69,7 +70,7 @@ Shader "Hidden/ClumpingVoronoi"
 
                 float id;
 
-                float numClumps = 2;
+                //float numClumps = 2;
 
                 float2 clumpCentre;
 
@@ -87,7 +88,7 @@ Shader "Hidden/ClumpingVoronoi"
                     if (d<minDist){
                     
                         minDist = d;
-                        id = fmod(j,3);
+                        id = fmod(j,_NumClumps);
                         clumpCentre = p;
                     }
 
@@ -95,11 +96,12 @@ Shader "Hidden/ClumpingVoronoi"
 
                 //id = id/20;
 
-                float3 col = float3(id,clumpCentre);
-
+                //float3 col = float3(id,clumpCentre);
+                float3 col = float3(id/_NumClumps,clumpCentre );
+                //float3 col = float3(2,2,2)/3;
                 //fixed4 col = fixed4(rand,0,1);
 
-                return fixed4(col,1);
+                return float4(col,1);
             }
             ENDCG
         }

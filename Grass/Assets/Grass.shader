@@ -36,6 +36,7 @@ Shader "Unlit/Grass"
         _LengthShadingBaseLuminance("_LengthShadingBaseLuminance", Float) = 1
         _DistantSpec("_DistantSpec", Float) = 1
         _DistantDiff("_DistantDiff", Float) = 1
+        //_GradientMap ("Gradient map", 2D) = "white" {}
       
 
     }
@@ -67,6 +68,7 @@ Shader "Unlit/Grass"
                 float bend;
                 float3 surfaceNorm;
                 float3 color;
+                float windForce;
                 
         };
     
@@ -89,14 +91,16 @@ Shader "Unlit/Grass"
                 float3 originalNorm : TEXCOORD3;
                 float3 worldPos : TEXCOORD4;
                 float3 surfaceNorm : TEXCOORD5;
-                float3 windTest : TEXCOORD6;
+                float3 vertexColor : TEXCOORD6;
             };
             float3 _WSpaceCameraPos;
+            float _WindControl;
 
             sampler2D _MainTex;
             sampler2D _WindTex;
             sampler2D _GrassAlbedo;
             sampler2D _GrassGloss;
+            //sampler2D _GradientMap;
             float4 _MainTex_ST;
             float4 _WindTex_ST;
             float _TaperAmount;
@@ -204,11 +208,11 @@ Shader "Unlit/Grass"
                 //Try go over individual vertices instead!
                 int positionIndex = Triangles[vertex_id];
                 float3 position = Positions[positionIndex];
-                float4 color = Colors[positionIndex];
+                float4 vertColor = Colors[positionIndex];
                 float2 uv = Uvs[positionIndex];
                 //Get the t and side information from the vertex color
-                float t = color.r;
-                float side = color.g;
+                float t = vertColor.r;
+                float side = vertColor.g;
                 side = (side*2)-1;
 
                 //Get the blade attribute data calculated in the compute shader
@@ -244,11 +248,47 @@ Shader "Unlit/Grass"
                 //float sinOffset = -0.003;
                 float hash= blade.hash;
                 
-                float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
-                float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
-                float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+                float windForce = blade.windForce;
+
+                windForce = saturate(((windForce - 0.5) * max(_Test4, 0)) + 0.5f);
+
+                //if (windForce < 0.5){
+                
+                //    windForce = pow(windForce,_Test4);
+                
+                //}
+                //else {
+                
+                //     windForce = pow(windForce,1/_Test4);
+
+                //}
+                
+
+                //float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange)*windForce; 
+                //float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange)*windForce; 
+                //float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange)*windForce; 
+                _WaveAmplitude = lerp(10,_WaveAmplitude,_WindControl);
+                _WaveSpeed = lerp(30,_WaveSpeed,_WindControl);
+
+                _WaveAmplitude = _WaveAmplitude*blade.height;
+
+
+
+                float p1ffset = pow(p1Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                float p2ffset =  pow(p2Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
+                float p3ffset =  pow(p3Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+
+                //p1ffset = (p1ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
+                //p2ffset = (p2ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
+                //p3ffset = (p3ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
+                //float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                //float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
+                //float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
 
                 ////_P0 += bezCtrlOffsetDir*  pOffset;
+                //p1 += bezCtrlOffsetDir*  p1ffset;
+                p2 += bezCtrlOffsetDir*  p2ffset;
+                p3 += bezCtrlOffsetDir*  p3ffset;
                 //p1 += bezCtrlOffsetDir*  p1ffset;
                 //p2 += bezCtrlOffsetDir*  p2ffset;
                 //p3 += bezCtrlOffsetDir*  p3ffset;
@@ -303,8 +343,9 @@ Shader "Unlit/Grass"
                 o.viewDir = normalize(_WSpaceCameraPos-newPos);
                 o.curvedNorm = normalize(curvedNormal);
                 o.originalNorm = normalize(normal);
-                o.color = color;
-                //o.color = fixed4(blade.color,1);
+                o.vertexColor = vertColor;
+                o.color = fixed4(blade.color,1);
+                //o.color = fixed4(windForce.xxx,1);
                 o.vertex = mul(UNITY_MATRIX_VP, float4(newPos, 1));
 
                 UNITY_TRANSFER_FOG(o,o.vertex);
@@ -363,7 +404,7 @@ Shader "Unlit/Grass"
                                + spec;
                 
                  
-                float lengthShading =  (i.color.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
+                float lengthShading =  (i.vertexColor.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
 
                 light *= lengthShading;
 
@@ -373,7 +414,12 @@ Shader "Unlit/Grass"
 
                 grassAlbedo = saturate(grassAlbedo*_AlbedoStrength+noAlbedoMask);
 
-                fixed4 col = lerp(_BottomColor,_TopColor, i.color.r) *light* grassAlbedo;
+                //fixed4 gradientCol = tex2D(_GradientMap, float2(i.vertexColor.r, 0));
+
+                fixed4 col = lerp(_BottomColor,_TopColor, i.vertexColor.r) *light* grassAlbedo*i.color;
+                //fixed4 col =  light* grassAlbedo* i.color;
+                //col = i.color;
+                //col = gradientCol;
 
                 //col = i.color;
                 // apply fog
