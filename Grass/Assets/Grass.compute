@@ -350,15 +350,17 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             //Compute the facing by lerping between random facing and shared clump facing based on the pointInSameDirection parameter
 
-            float2 clumpHash = hashwithoutsine22(clumpCentre);
+            float2 clumpHash = hashwithoutsine22(clumpCentre+float2(0.13, 1.111));
 
             float2 sharedClumpFacing = normalize( clumpHash  *2 - 1);
 
             float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
-            
+
             float2 combinedFacing = normalize(lerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
 
-            //bladeFacing = combinedFacing;
+            bladeFacing = sharedClumpFacing ;
+
+            float angle = atan2(bladeFacing.y,bladeFacing.x);
 
             //----Attempt to tilt blades that are orthogonal to camera
             //I think it is better to do this in view space
@@ -415,8 +417,6 @@ void Main (uint3 id : SV_DispatchThreadID)
                 //float smallWind = WindTex.SampleLevel(samplerWindTex, smallWindUV, 0).y;
 
                 //float smallWindRotateAngle = (smallWind)* 3.14159 * _SmallWindRotateAmount;
-
-                float angle = atan2(bladeFacing.y,bladeFacing.x);
 
 
 

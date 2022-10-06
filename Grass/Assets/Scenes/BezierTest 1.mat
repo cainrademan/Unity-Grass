@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ClumpingVoronoi
-  m_Shader: {fileID: 4800000, guid: 6e65057db535fa14994965eb4e4d4562, type: 3}
+  m_Name: BezierTest 1
+  m_Shader: {fileID: 4800000, guid: c800d6a20a318c54384c40304a61d7f8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -68,17 +68,28 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _LerpWaveGeneration: 0
     - _Metallic: 0
     - _Mode: 0
-    - _NumClumps: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _SinOffsetRange: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _TaperAmount: 0.45
+    - _Test: 0.019
     - _UVSec: 0
+    - _WaveAmplitude: 0.114
+    - _WavePower: 1
+    - _WaveSpeed: 80
+    - _Width: 0.011
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _P0: {r: -0.0002, g: 0, b: 0, a: 0}
+    - _P1: {r: 0.00028, g: 0.00842, b: -0.00046000036, a: 0}
+    - _P2: {r: 0.0023999999, g: 0.01712, b: -0.0019600007, a: 0}
+    - _P3: {r: 0.0061199996, g: 0.01574, b: -0.0075600003, a: 0}
   m_BuildTextureStacks: []
