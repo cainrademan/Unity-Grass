@@ -7,18 +7,48 @@ using UnityEngine;
 //[ExecuteInEditMode]
 public class Grass : MonoBehaviour
 {
-
-    [SerializeField, Range(10, 2000)]
-    int resolution = 10;
-
-    int numInstances;
-
-    public GameObject plane;
-
+    [Header("Linked objects")]
     [SerializeField]
     ComputeShader computeShader;
-
+    [SerializeField]
+    Material material;
+    public GameObject plane;
     public Camera cam;
+    public Mesh originalMesh;
+ 
+    [Header("Grass placement")]
+    [SerializeField, Range(10, 4000)]
+    int resolution = 10;
+    public float jitterStrength;
+    public Texture heightMap;
+
+    [Header("Wind")]
+    public Texture WindTex;
+    [SerializeField, Range(0, 1)]
+    public float _WindControl;
+    public float _BigWindSpeed;
+    public float _BigWindScale;
+    public float _BigWindRotateAmount;
+    public float _SmallWindSpeed;
+    public float _SmallWindScale;
+    //public float _SmallWindRotateAmount;
+
+
+    [Header("Grass shape")]
+    public float _VertexPlacementPower;
+
+    [Header("Culling")]
+    public float _DistanceCullStartDist;
+    public float _DistanceCullEndDist;
+    //public float _DistanceCullC;
+    //public float _DistanceCullM;
+    public float _DistanceCullMinimumGrassAmount;
+    public bool DISTANCE_CULL_ENABLED;
+    public float _FrustumCullNearOffset;
+    public float _FrustumCullEdgeOffset;
+    int numInstances;
+
+    
 
     ComputeBuffer grassBladesBuffer;
     ComputeBuffer meshTriangles;
@@ -33,42 +63,64 @@ public class Grass : MonoBehaviour
 
     private const int ARGS_STRIDE = sizeof(int) * 4;
 
-    public Texture WindTex;
-    [SerializeField, Range(0, 1)]
-    public float _WindControl;
-    public float _BigWindSpeed;
-    public float _BigWindScale;
-    public float _BigWindRotateAmount;
-    public float _SmallWindSpeed;    
-    public float _SmallWindScale;
-    public float _SmallWindRotateAmount;
-
     //public GameObject prefab;
-    public float _VertexPlacementPower;
-    public float _GrassBaseHeight;
-    public float _GrassHeightRandom;
-    public float _GrassBaseWidth;
-    public float _GrassWidthRandom ;
-    public float _GrassBaseTilt;
-    public float _GrassTiltRandom;
-    public float _GrassBaseBend;
-    public float _GrassBendRandom;
-    public float _FrustumCullNearOffset;
+    //public float _GrassBaseHeight;
+    //public float _GrassHeightRandom;
+    //public float _GrassBaseWidth;
+    //public float _GrassWidthRandom ;
+    //public float _GrassBaseTilt;
+    //public float _GrassTiltRandom;
+    //public float _GrassBaseBend;
+    //public float _GrassBendRandom;
 
-    public float _DistanceCullStartDist;
-    public float _DistanceCullEndDist;
-    public float _DistanceCullC;
-    public float _DistanceCullM;
-    public float _DistanceCullMinimumGrassAmount;
 
-    public bool DISTANCE_CULL_ENABLED;
 
+    [Header("(Dev)Testing Variables")]
     public float _Test;
     public float _Test2;
 
+    [Header("Clumping")]
     public int clumpTexHeight;
     public int clumpTexWidth;
     public Material clumpingVoronoiMat;
+
+    public float ClumpScale;
+
+    public List<ClumpParametersStruct> clumpParameters;
+   
+
+    [Header("Clump gradient map")]
+    public Vector2Int gradientMapDimensions = new Vector2Int(128, 32);
+    public Gradient gradient;
+    public bool testing = false;
+    public Texture2D texture;
+
+
+
+    [Serializable]
+    public struct ClumpParametersStruct
+    {
+        //Base height : float
+        //Height random : float
+        //Base width : float
+        //Width random : float
+        //Base tilt : float
+        //Tilt random : float
+        //Base bend : float
+        //Bend random : float
+        //public Color clumpColor;
+        public float pullToCentre;
+        public float pointInSameDirection;
+        public float baseHeight;
+        public float heightRandom;
+        public float baseWidth;
+        public float widthRandom;
+        public float baseTilt;
+        public float tiltRandom;
+        public float baseBend;
+        public float bendRandom;
+
+    };
 
 
     static readonly int
@@ -105,61 +157,27 @@ public class Grass : MonoBehaviour
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
-    public Texture heightMap;
-    public float jitterStrength;
+    
+    
 
     float GrassSpacing;
     Vector3 PlaneCentre;
-    [SerializeField]
-    Material material;
+    
 
-    public Mesh originalMesh;
+    
     MeshFilter meshFilter;
-
     Mesh clonedMesh;
-
-    [Serializable]
-    public struct ClumpParametersStruct
-    {
-        //Base height : float
-        //Height random : float
-        //Base width : float
-        //Width random : float
-        //Base tilt : float
-        //Tilt random : float
-        //Base bend : float
-        //Bend random : float
-        //public Color clumpColor;
-        public float pullToCentre;
-        public float pointInSameDirection;
-        public float baseHeight;
-        public float heightRandom;
-        public float baseWidth;
-        public float widthRandom;
-        public float baseTilt;
-        public float tiltRandom;
-        public float baseBend;
-        public float bendRandom;
-
-    };
     //--------
-    [Header("Gradient map parameters")]
-    public Vector2Int gradientMapDimensions = new Vector2Int(128, 32);
-    public Gradient gradient;
-
-    [Header("Enable testing")]
-    public bool testing = false;
-
+    
     //private SpriteRenderer spriteRenderer;
     //public Material material;
 
-    public Texture2D texture;
 
-    public static int totalMaps = 0;
+
+    //public static int totalMaps = 0;
     //---------
-    public float ClumpScale;
 
-    public List<ClumpParametersStruct> clumpParameters;
+    
     ClumpParametersStruct[] clumpParametersArray;
 
     Bounds bounds;
@@ -170,19 +188,19 @@ public class Grass : MonoBehaviour
 
 
         
-        computeShader.SetFloat(heightId, _GrassBaseHeight);
-        computeShader.SetFloat(heightRandId, _GrassHeightRandom);
-        computeShader.SetFloat(widthId, _GrassBaseWidth);
-        computeShader.SetFloat(widthRandId, _GrassWidthRandom);
-        computeShader.SetFloat(tiltId, _GrassBaseTilt);
-        computeShader.SetFloat(tiltRandId, _GrassTiltRandom);
-        computeShader.SetFloat(bendId, _GrassBaseBend);
-        computeShader.SetFloat(bendRandId, _GrassBendRandom);
+        //computeShader.SetFloat(heightId, _GrassBaseHeight);
+        //computeShader.SetFloat(heightRandId, _GrassHeightRandom);
+        //computeShader.SetFloat(widthId, _GrassBaseWidth);
+        //computeShader.SetFloat(widthRandId, _GrassWidthRandom);
+        //computeShader.SetFloat(tiltId, _GrassBaseTilt);
+        //computeShader.SetFloat(tiltRandId, _GrassTiltRandom);
+        //computeShader.SetFloat(bendId, _GrassBaseBend);
+        //computeShader.SetFloat(bendRandId, _GrassBendRandom);
 
         computeShader.SetFloat(distanceCullStartDistId, _DistanceCullStartDist);
         computeShader.SetFloat(distanceCullEndDistId, _DistanceCullEndDist);
-        computeShader.SetFloat(distanceCullCId, _DistanceCullC);
-        computeShader.SetFloat(distanceCullMId, _DistanceCullM);
+        //computeShader.SetFloat(distanceCullCId, _DistanceCullC);
+        //computeShader.SetFloat(distanceCullMId, _DistanceCullM);
 
         computeShader.SetVector(worldSpaceCameraPositionId, cam.transform.position);
 
@@ -192,13 +210,24 @@ public class Grass : MonoBehaviour
 
 
         computeShader.SetVector("_Time", Shader.GetGlobalVector("_Time"));
+        //computeShader.SetVector("_ProjectionParams", new Vector4(1, cam.nearClipPlane, cam.farClipPlane,1/cam.farClipPlane));
+
+
+        //Texture depth = Shader.GetGlobalTexture("_CameraDepthTexture");
+        //computeShader.SetTexture(0, "_DepthTexture", depth);
+        computeShader.SetTextureFromGlobal(0, "DepthTexture", "_CameraDepthTexture");
+        //computeShader.SetTextureFromGlobal(0, "_CameraDepthTexture", "_LastCameraDepthTexture ");
+        //computeShader.SetTextureFromGlobal(0, "DepthTexture", "_CameraDepthTexture");
+
+        computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
+        computeShader.SetFloat("_FrustumCullEdgeOffset", _FrustumCullEdgeOffset);
 
         computeShader.SetFloat("_BigWindSpeed", _BigWindSpeed);
         computeShader.SetFloat("_BigWindScale", _BigWindScale);
         computeShader.SetFloat("_BigWindRotateAmount", _BigWindRotateAmount);
         computeShader.SetFloat("_SmallWindSpeed", _SmallWindSpeed);
         computeShader.SetFloat("_SmallWindScale", _SmallWindScale);
-        computeShader.SetFloat("_SmallWindRotateAmount", _SmallWindRotateAmount);
+        //computeShader.SetFloat("_SmallWindRotateAmount", _SmallWindRotateAmount);
         computeShader.SetFloat("_WindControl", _WindControl);
 
         Matrix4x4 projMat = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);
@@ -224,8 +253,9 @@ public class Grass : MonoBehaviour
 
     void Awake()
     {
+        //cam.depthTextureMode = DepthTextureMode.Depth;
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 16, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 17, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -253,6 +283,9 @@ public class Grass : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+        //cam.depthTextureMode = cam.depthTextureMode | DepthTextureMode.Depth;
+
         if (DISTANCE_CULL_ENABLED)
         {
 
@@ -375,8 +408,6 @@ public class Grass : MonoBehaviour
         computeShader.SetVector(planeCentreId, PlaneCentre);
         computeShader.SetTexture(0, heightMapId, heightMap);
         computeShader.SetBuffer(0, grassBladesBufferID, grassBladesBuffer);
-
-        computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
 
 
         computeShader.SetTexture(0, windTexID, WindTex);

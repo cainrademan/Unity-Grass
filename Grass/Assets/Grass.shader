@@ -2,40 +2,44 @@ Shader "Unlit/Grass"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+         [Header(Albedo)]
         _GrassAlbedo("Grass albedo", 2D) = "white" {}
-        _AlbedoScale("_AlbedoScale", Float) = 0
+        _AlbedoScale("Albedo Scale", Float) = 0
+        _AlbedoStrength("Albedo Strength", Float) = 0
+        [Header(Gloss)]
         _GrassGloss("Grass gloss", 2D) = "white" {}
-        //_WindTex("_WindTex", 2D) = "white" {}
-        //_WindStrength("_WindStrength", Float) = 1
-        //_BigWindSpeed("_BigWindSpeed", Float) = 1
-        //_SmallWindSpeed("_SmallWindSpeed", Float) = 1
-        //_WindRotateAmount("_WindRotateAmount", Float) = 1
-        _GlossScale("_GlossScale", Float) = 0
-        _AlbedoStrength("_AlbedoStrength", Float) = 0
-        _TaperAmount ("_TaperAmount", Float) = 0
-        _p1Flexibility ("_p1Flexibility", Float) = 1
-        _p2Flexibility ("_p2Flexibility", Float) = 1
-        _WaveAmplitude("_WaveAmplitude", Float) = 1
-        _WaveSpeed("_WaveSpeed", Float) = 1
-        _WavePower("_WavePower", Float) = 1
-        _SinOffsetRange("_SinOffsetRange", Float) = 1
+        _GlossScale("Gloss Scale", Float) = 0
+        [Header(Shape)]
+        _TaperAmount ("Taper Amount", Float) = 0
+        _CurvedNormalAmount("Curved Normal Amount", Float) = 1
+        _p1Flexibility ("p1Flexibility", Float) = 1
+        _p2Flexibility ("p2Flexibility", Float) = 1
+        [Header(Animation)]
+        _WaveAmplitude("Wave Amplitude", Float) = 1
+        _WaveSpeed("Wave Speed", Float) = 1
+        _WavePower("Wave Power", Float) = 1
+        _SinOffsetRange("Sin OffsetRange", Float) = 1
+        [Header(Shading)]
+        _Kspec("Specular Strength", Float) = 0
+        _Kd("Diffuse Strength", Float) = 0
+        _Kamb("Ambient Strength", Float) = 0
+        _ShininessLower("Lower Shininess", Float) = 1
+        _ShininessUpper("Upper Shininess", Float) = 1
+        _TopColor ("Top Color", Color) = (.25, .5, .5, 1)
+        _BottomColor ("Bottom Color", Color) = (.25, .5, .5, 1)
+        _LengthShadingStrength("Length shading multiplier", Float) = 1
+        _LengthShadingBaseLuminance("Length shading offset", Float) = 1
+        [Header(Distance shading)]
+        _BlendSurfaceNormalDistLower("Start Distance (Blend Surface Normal)", Float) = 1
+        _BlendSurfaceNormalDistUpper("End Distance (Blend Surface Normal)", Float) = 1
+        _DistantDiff("Distant Diffuse Strength", Float) = 1
+        _DistantSpec("Distant Specular Strength", Float) = 1
+        
+        [Header(Test variables)]
         _Test("_Test", Float) = 0
         _Test2("_Test2", Float) = 0
         _Test3("_Test3", Float) = 0
         _Test4("_Test4", Float) = 0
-        _Kspec("kspec", Float) = 0
-        _Kd("kd", Float) = 0
-        _Kamb("ka", Float) = 0
-        _ShininessLower("_ShininessLower", Float) = 1
-        _ShininessUpper("_ShininessUpper", Float) = 1
-        _TopColor ("Top Color", Color) = (.25, .5, .5, 1)
-        _BottomColor ("Bottom Color", Color) = (.25, .5, .5, 1)
-        _AmbientLight("Ambient Light intensity", Float) = 1
-        _LengthShadingStrength("_LengthShadingStrength", Float) = 1
-        _LengthShadingBaseLuminance("_LengthShadingBaseLuminance", Float) = 1
-        _DistantSpec("_DistantSpec", Float) = 1
-        _DistantDiff("_DistantDiff", Float) = 1
         //_GradientMap ("Gradient map", 2D) = "white" {}
       
 
@@ -69,6 +73,7 @@ Shader "Unlit/Grass"
                 float3 surfaceNorm;
                 float3 color;
                 float windForce;
+                float sideBend;
                 
         };
     
@@ -133,7 +138,9 @@ Shader "Unlit/Grass"
             float _SmallWindSpeed;
             float _BigWindSpeed;
             float _WindRotateAmount;
-
+            float _BlendSurfaceNormalDistUpper;
+            float _CurvedNormalAmount;
+            float _BlendSurfaceNormalDistLower;
             float3x3 AngleAxis3x3(float angle, float3 axis)
 	        {
 		        float c, s;
@@ -250,7 +257,7 @@ Shader "Unlit/Grass"
                 
                 float windForce = blade.windForce;
 
-                windForce = saturate(((windForce - 0.5) * max(_Test4, 0)) + 0.5f);
+                windForce = saturate(  ((windForce - 0.5) * max(_Test4, 0)) + 0.5f   );
 
                 //if (windForce < 0.5){
                 
@@ -267,20 +274,23 @@ Shader "Unlit/Grass"
                 //float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange)*windForce; 
                 //float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange)*windForce; 
                 //float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((windForce+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange)*windForce; 
-                _WaveAmplitude = lerp(10,_WaveAmplitude,_WindControl);
-                _WaveSpeed = lerp(30,_WaveSpeed,_WindControl);
+
+
+                _WaveAmplitude = lerp(0,_WaveAmplitude,_WindControl);
+                _WaveSpeed = lerp(0,_WaveSpeed,_WindControl);
 
                 _WaveAmplitude = _WaveAmplitude*blade.height;
 
 
 
-                float p1ffset = pow(p1Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
-                float p2ffset =  pow(p2Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
-                float p3ffset =  pow(p3Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
+                //float p1ffset = pow(p1Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
+                float p2ffset =  pow(p2Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange)*windForce; 
+                float p3ffset =  pow(p3Weight,_WavePower)*(_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange)*windForce; 
 
                 //p1ffset = (p1ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
-                //p2ffset = (p2ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
-                //p3ffset = (p3ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
+                //p2ffset = (p2ffset) -  _Test4*(pow(p2Weight,_WavePower)*_WaveAmplitude/100)/2;
+                p2ffset = (p2ffset) -  _Test3*(pow(p2Weight,_WavePower)*_WaveAmplitude/100)/2;
+                p3ffset = (p3ffset) -  _Test3*(pow(p3Weight,_WavePower)*_WaveAmplitude/100)/2;
                 //float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
                 //float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
                 //float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 
@@ -289,13 +299,13 @@ Shader "Unlit/Grass"
                 //p1 += bezCtrlOffsetDir*  p1ffset;
                 p2 += bezCtrlOffsetDir*  p2ffset;
                 p3 += bezCtrlOffsetDir*  p3ffset;
-                //p1 += bezCtrlOffsetDir*  p1ffset;
-                //p2 += bezCtrlOffsetDir*  p2ffset;
-                //p3 += bezCtrlOffsetDir*  p3ffset;
+
 
 
                 //Evaluate Bezier curve
                 float3 newPos = cubicBezier(p0, p1,p2,p3, t);
+
+                float3 midPoint = newPos;
 
                     //for normals, unneeded now
                 float3 tangent = normalize(bezierTangent(p0, p1,p2,p3, t));
@@ -305,7 +315,7 @@ Shader "Unlit/Grass"
                 //normal.z += side * pow(_Test3,_Test4);
 
                 float3 curvedNormal = normal;
-                curvedNormal.z += side * pow(_Test3,1);
+                curvedNormal.z += side * pow(_CurvedNormalAmount,1);
 
                 curvedNormal = normalize(curvedNormal);
 
@@ -314,7 +324,25 @@ Shader "Unlit/Grass"
 
                 float angle = blade.rotAngle;
 
-                float3x3 rotMat = AngleAxis3x3(angle, float3(0,1,0));
+                float sideBend = blade.sideBend;
+
+
+
+                float3x3 rotMat = AngleAxis3x3(-angle, float3(0,1,0));
+                float3x3 sideRot = AngleAxis3x3(sideBend,normalize(tangent));
+
+                newPos = newPos - midPoint;
+                //normal = normal - midPoint;
+                //curvedNormal = curvedNormal - midPoint;
+
+                normal = mul(sideRot,normal);
+                curvedNormal = mul(sideRot,curvedNormal);
+                newPos = mul(sideRot,newPos);
+
+                newPos = newPos + midPoint;
+                //normal = normal + midPoint;
+                //curvedNormal = curvedNormal + midPoint;
+
 
                 normal = mul(rotMat,normal);
                 curvedNormal = mul(rotMat,curvedNormal);
@@ -354,9 +382,9 @@ Shader "Unlit/Grass"
 
             fixed4 frag (v2f i, fixed facing : VFACE) : SV_Target
             {
-                float3 curvedNorm = i.curvedNorm;
+                float3 curvedNorm = normalize(i.curvedNorm);
 
-                float3 originalNorm = i.originalNorm;
+                float3 originalNorm = normalize(i.originalNorm);
 
                 float3 n;
 
@@ -373,15 +401,15 @@ Shader "Unlit/Grass"
 
                 float distToCam = distance(i.worldPos, _WSpaceCameraPos);
 
-                float surfaceNormalBlendSmoothstep = smoothstep(_Test,_Test2, distToCam);
+                float surfaceNormalBlendSmoothstep = smoothstep(_BlendSurfaceNormalDistLower,_BlendSurfaceNormalDistUpper, distToCam);
 
-                n = lerp(n, i.surfaceNorm, surfaceNormalBlendSmoothstep);
+                //n = lerp(n, normalize(i.surfaceNorm), surfaceNormalBlendSmoothstep);
 
                 n= normalize(n);
 
                 float3 l = normalize(_WorldSpaceLightPos0);
 
-                float gloss = tex2D(_GrassGloss, i.uv*float2(_GlossScale, 1));
+                float gloss = tex2D(_GrassGloss, i.uv*float2(_GlossScale, _GlossScale));
 
                 float3 r = normalize(reflect(-l,n)) ;
 
@@ -393,7 +421,7 @@ Shader "Unlit/Grass"
 
                 _Kspec = lerp(_Kspec, _DistantSpec, surfaceNormalBlendSmoothstep);
 
-                float spec = _Kspec* pow(saturate(dot(r,v)),shininess);
+                float spec = _Kspec* pow(saturate(dot(r,v)),shininess)   *      pow(i.vertexColor.r,_Test);
 
                 _Kd = lerp(_Kd, _DistantDiff, surfaceNormalBlendSmoothstep);
 
@@ -404,7 +432,10 @@ Shader "Unlit/Grass"
                                + spec;
                 
                  
-                float lengthShading =  (i.vertexColor.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
+                //float lengthShading =  (i.vertexColor.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
+                float lengthShading = i.vertexColor.r;
+
+                lengthShading = saturate(  ((lengthShading - 0.5) * max(_LengthShadingStrength, 0)) + 0.5f   ) + _LengthShadingBaseLuminance;
 
                 light *= lengthShading;
 
@@ -417,6 +448,9 @@ Shader "Unlit/Grass"
                 //fixed4 gradientCol = tex2D(_GradientMap, float2(i.vertexColor.r, 0));
 
                 fixed4 col = lerp(_BottomColor,_TopColor, i.vertexColor.r) *light* grassAlbedo*i.color;
+
+                //col =i.color;
+                //col = fixed4(shininess.xxx/_ShininessUpper,1);
                 //fixed4 col =  light* grassAlbedo* i.color;
                 //col = i.color;
                 //col = gradientCol;

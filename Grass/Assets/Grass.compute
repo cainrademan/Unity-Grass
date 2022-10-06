@@ -1,3 +1,6 @@
+//#include "UnityCG.cginc"
+
+
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel Main
 #pragma multi_compile_local __ DISTANCE_CULL_ENABLED
@@ -16,6 +19,7 @@ struct GrassBlade {
     float3 surfaceNorm;
     float3 color;
     float windForce;
+    float sideBend;
 };
 
 
@@ -42,6 +46,13 @@ float baseBend;
 float bendRandom;
 };
 
+//Texture2D CameraDepthTexture;
+//SamplerState MyLinearClampSampler;
+//Texture2D<float4> DepthTexture;
+//uniform Texture2D<float4> _CameraDepthTexture;
+//Texture2D<float4> DepthTexture;
+
+
 StructuredBuffer<ClumpParametersStruct> _ClumpParameters;
 
 //RWStructuredBuffer<GrassBlade> _GrassBlades;
@@ -51,21 +62,22 @@ uint _Resolution;
 float _GrassSpacing;
 float _JitterStrength;
 float3 _PlaneCentre;
-float _GrassBaseHeight = 1;
-float _GrassHeightRandom = 0.1;
-float _GrassBaseWidth = 2;
-float _GrassWidthRandom = 0.011/2;
-float _GrassBaseTilt = 0.05;
-float _GrassTiltRandom = 0.05/2;
-float _GrassBaseBend = 0.01;
-float _GrassBendRandom = 0.01;
-float _FrustumCullNearOffset;
+//float _GrassBaseHeight = 1;
+//float _GrassHeightRandom = 0.1;
+//float _GrassBaseWidth = 2;
+//float _GrassWidthRandom = 0.011/2;
+//float _GrassBaseTilt = 0.05;
+//float _GrassTiltRandom = 0.05/2;
+//float _GrassBaseBend = 0.01;
+//float _GrassBendRandom = 0.01;
 
+float _FrustumCullNearOffset;
+float _FrustumCullEdgeOffset;
 
 float _DistanceCullStartDist;
 float _DistanceCullEndDist;
-float _DistanceCullC;
-float _DistanceCullM;
+//float _DistanceCullC;
+//float _DistanceCullM;
 float _DistanceCullMinimumGrassAmount;
 float _Test;
 float _Test2;
@@ -79,14 +91,16 @@ SamplerState samplerWindTex;
 
 float _WindControl;
 float _BigWindSpeed;
-float _SmallWindSpeed;
 float _BigWindRotateAmount;
 float _BigWindScale;
+float _SmallWindSpeed;
 float _SmallWindScale;
-float _SmallWindRotateAmount;
+//float _SmallWindRotateAmount;
 
 
 float4 _Time;
+
+//float4 _ProjectionParams;
 
 Texture2D HeightMap; 
 SamplerState samplerHeightMap;
@@ -128,13 +142,13 @@ uint _2DIdTo1D(uint3 id){
 
     }
 
-    uint DistanceCull(float3 worldPos, float hash, float3 norm, float3 posToCam){
+    uint DistanceCull(float3 worldPos, float hash, float3 posToCam){
     
        
 
-        float viewAngleModulation = pow(saturate(dot(norm, posToCam)  * _DistanceCullC), _Test);
+        //float viewAngleModulation = pow(saturate(dot(norm, posToCam)  * _DistanceCullC), _Test);
 
-        float viewAngleCull =  hash > (1-viewAngleModulation) ? 1 : -1;
+        //float viewAngleCull =  hash > (1-viewAngleModulation) ? 1 : -1;
 
 
         //Distance culling
@@ -161,8 +175,8 @@ uint _2DIdTo1D(uint3 id){
     uint FrustumCull(float4 clipPos){
     return(clipPos.z > clipPos.w 
     || clipPos.z < - clipPos.w 
-    || clipPos.x < - clipPos.w
-    || clipPos.x > clipPos.w
+    || clipPos.x < - clipPos.w + _FrustumCullEdgeOffset
+    || clipPos.x > clipPos.w - _FrustumCullEdgeOffset
     || clipPos.y < - clipPos.w +_FrustumCullNearOffset
     || clipPos.y > clipPos.w)
         ? 0: 1;
@@ -193,6 +207,26 @@ uint test(float3 pos)
     
     }
 
+
+    float2 rot90CCW(float2 vec){
+    
+        return float2(-vec.y,vec.x);
+    
+    }
+
+
+//  float4 ComputeScreenPos (float4 pos) {
+//    float4 o = pos * 0.5f;
+//    #if defined(UNITY_HALF_TEXEL_OFFSET)
+//    o.xy = float2(o.x, o.y*_ProjectionParams.x) + o.w * _ScreenParams.zw;
+//    #else
+//    o.xy = float2(o.x, o.y*_ProjectionParams.x) + o.w;
+//    #endif
+ 
+//    o.zw = pos.zw;
+//    return o;
+//}
+
 [numthreads(8,8,1)]
 void Main (uint3 id : SV_DispatchThreadID)
 {
@@ -216,7 +250,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         //Retrieve clump data for this blade from voronoi texture
         //This includes the clump parameter id, and the centre of this clump in texture space
-        float3 clumpData = ClumpTex.SampleLevel(samplerClumpTex, clumpUV, 0);
+        float3 clumpData = ClumpTex.SampleLevel(samplerClumpTex, clumpUV, 0).xyz;
 
         //This is the index of the clump parameter set for this blade
         float clumpParamsIndex = clumpData.x*_NumClumpParameters;
@@ -232,6 +266,17 @@ void Main (uint3 id : SV_DispatchThreadID)
         //Pull position to centre of clump based on pullToCentre
         position.xz = lerp(position.xz, clumpCentre, bladeParameters.pullToCentre);
 
+
+        float3 raisedVertex = getTransformedVertex(position);
+        float3 posToCam =  normalize(_WSpaceCameraPos - raisedVertex);
+
+        uint distanceCull = 1;
+        //Distance culling
+        #if DISTANCE_CULL_ENABLED
+
+            distanceCull = DistanceCull(raisedVertex, hash.x, posToCam);
+        #endif
+
         float2 worldUV = position.xz;
 
         float3 bitangent = float3(1, 0, 0);
@@ -241,7 +286,7 @@ void Main (uint3 id : SV_DispatchThreadID)
         // Also calc surface normal from height map. Probably better to read from a texture
         float3 vertexBitangent = getTransformedVertex(position + bitangent*0.01);
         float3 vertexTangent = getTransformedVertex(position + tangent*0.01);
-        float3 raisedVertex = getTransformedVertex(position);
+        
 
         float3 newBitangent = (vertexBitangent-raisedVertex ).xyz;
         float3 newTangent = (vertexTangent-raisedVertex).xyz;
@@ -254,21 +299,29 @@ void Main (uint3 id : SV_DispatchThreadID)
         //Get clipPos for easier frustum culling in clip space
         float4 clipPos = mul(_VP_MATRIX, float4(raisedVertex,1));
 
+        //float4 screenPos = ComputeScreenPos(clipPos);
+        
+        //float2 screenUV = screenPos.xy / screenPos.w;
+
+        //float depth =  CameraDepthTexture.SampleLevel(MyLinearClampSampler, screenUV, 0).x;
+        //_DepthTexture[uv.xy];
+        //float depth = DepthTexture[float2(0,0)];
+
+        //float depth = 1;
+
+        uint occlusionCull = 1;
+
         //Frustum culling
         uint isInFrustum = FrustumCull(clipPos);
 
-        uint distanceCull = 1;
+        
 
-        float3 posToCam =  normalize(_WSpaceCameraPos - raisedVertex);
+        
 
-        //Distance culling
-        #if DISTANCE_CULL_ENABLED
-
-            distanceCull = DistanceCull(raisedVertex, hash.x, norm, posToCam);
-        #endif
+        
 
 
-        if (isInFrustum == 1 && distanceCull == 1){
+        if (isInFrustum == 1 && distanceCull == 1 && occlusionCull == 1){
             
             //Copy parameters from parameter struct
             //float4 clumpColor = bladeParameters.clumpColor;
@@ -305,7 +358,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             
             float2 combinedFacing = normalize(lerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
 
-            bladeFacing = combinedFacing;
+            //bladeFacing = combinedFacing;
 
             //----Attempt to tilt blades that are orthogonal to camera
             //I think it is better to do this in view space
@@ -313,6 +366,8 @@ void Main (uint3 id : SV_DispatchThreadID)
             //float d = distance(raisedVertex, _WSpaceCameraPos);
 
             //float s = smoothstep(1.71, 1.71+10, d);
+
+            
 
             //float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
 
@@ -353,20 +408,27 @@ void Main (uint3 id : SV_DispatchThreadID)
 
                 float bigWindRotateAngle = rotateBladeFromBigWindAmount * (3.14159/2) * _BigWindRotateAmount;
 
-                float2 smallWindUV = worldUV * (_SmallWindScale);
+                //float2 smallWindUV = worldUV * (_SmallWindScale);
 
-                smallWindUV += _Time.y * float2(1,0) *_SmallWindSpeed;
+                //smallWindUV += _Time.y * float2(1,0) *_SmallWindSpeed;
 
-                //float smallWind = (tex2Dlod( _WindTex, float4(smallWindUV.x, smallWindUV.y, 0,0)).y   )*2-1;
-                float smallWind = WindTex.SampleLevel(samplerWindTex, smallWindUV, 0).y*2-1;
+                //float smallWind = WindTex.SampleLevel(samplerWindTex, smallWindUV, 0).y;
 
-                float smallWindRotateAngle = (smallWind)* 3.14159 * _SmallWindRotateAmount;
+                //float smallWindRotateAngle = (smallWind)* 3.14159 * _SmallWindRotateAmount;
 
                 float angle = atan2(bladeFacing.y,bladeFacing.x);
 
+
+
+                //float2 cameraDirXZ = posToCam.xz;
+
+                //float cameraAngle = atan2(cameraDirXZ.y,cameraDirXZ.x);
+
+
+
                 angle += bigWindRotateAngle;
 
-
+                //float2 newFacing = float2(cos(angle), sin(angle));
 
             blade.rotAngle = angle;
             blade.hash = rand(id.xyx);
@@ -407,12 +469,21 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.surfaceNorm = norm;
             //blade.color = clumpParamsIndex.xxx;
 
-            float3 clumpColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, clumpHash.x, 0);
+            float3 clumpColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, clumpHash.x, 0).xyz;
 
             blade.color = clumpColor.xyz;
 
-            blade.windForce = (smallWind+1)/2;
 
+            
+            float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
+            float sideBend = smoothstep(_Test, 0, viewAlignment)*_Test2;
+            //float sideBend = viewAlignment < _Test  ? _Test2 : 0;
+            
+
+            blade.sideBend = sideBend;
+
+            blade.windForce = (bigWind);
+            //blade.windForce = (1+1)/2;
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);
 
