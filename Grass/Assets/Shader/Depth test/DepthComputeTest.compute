@@ -1,0 +1,11 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+Texture2D<float4> _DepthTexture;
+RWTexture2D<float4> _OutputTexture;
+ 
+[numthreads(32,32,1)]
+void CSMain (uint3 uv : SV_DispatchThreadID)
+{
+        _OutputTexture[uv.xy] = _DepthTexture[uv.xy];
+}

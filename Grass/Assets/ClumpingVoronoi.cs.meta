@@ -1,9 +1,10 @@
 fileFormatVersion: 2
-guid: fc5663e1cf0bc3a42828193b7adc630c
+guid: 42a40cfcaf8eddd448faea5600ff2b3b
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - clumpingVoronoiMat: {fileID: 2100000, guid: 427f3176a375e484f86f3b548da71ba3, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

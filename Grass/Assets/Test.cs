@@ -4,19 +4,20 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    public int resolution;
-    public GameObject obj;
-    public float mul;
     // Start is called before the first frame update
     void Start()
     {
-        int numInstances = resolution * resolution; 
-        for (int i = 0; i < resolution; i++)
-        {
-            for (int j = 0; j < resolution; j++)
-            {
-                Instantiate(obj, new Vector3(i,0,j) * mul, Quaternion.identity);
-            }
+        for (int i = 0; i < 50; i++) {
+
+            float div = (float)i / 4;
+            float m = i % 4;
+            float m2 = Mathf.Repeat(i,4);
+
+            Debug.Log("-------" + i  +"----------");
+            Debug.Log(i + " div 4: " + div);
+            Debug.Log(i +  " float remainder: " + m2);
+            Debug.Log(i + " remainder: " + m);
+            
         }
     }
 
