@@ -243,7 +243,7 @@ MonoBehaviour:
   _WindControl: 1
   _BigWindSpeed: 0.01
   _BigWindScale: 0.001
-  _BigWindRotateAmount: 0.3
+  _BigWindRotateAmount: 0
   _SmallWindSpeed: 0.01
   _SmallWindScale: 0.001
   _VertexPlacementPower: 0.5

@@ -112,7 +112,7 @@ Material:
     - _Shininess: 4
     - _ShininessLower: 0
     - _ShininessUpper: 1
-    - _SinOffsetRange: -1
+    - _SinOffsetRange: -0.5
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -120,12 +120,12 @@ Material:
     - _TaperAmount: 0.7
     - _Test: 3.66
     - _Test2: 1.28
-    - _Test3: 1
+    - _Test3: 5
     - _Test4: 1
     - _UVSec: 0
-    - _WaveAmplitude: 60
+    - _WaveAmplitude: 100
     - _WavePower: 1
-    - _WaveSpeed: 60
+    - _WaveSpeed: 40
     - _WindRotateAmount: 1
     - _WindSpeed: 0.1
     - _WindStrength: 0.1

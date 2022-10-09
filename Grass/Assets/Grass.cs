@@ -29,9 +29,10 @@ public class Grass : MonoBehaviour
     public float _BigWindSpeed;
     public float _BigWindScale;
     public float _BigWindRotateAmount;
-    public float _SmallWindSpeed;
-    public float _SmallWindScale;
-    
+    //public float _SmallWindSpeed;
+    //public float _SmallWindScale;
+    public float _WindTexContrast = 1;
+
     //public float _SmallWindRotateAmount;
 
 
@@ -49,7 +50,6 @@ public class Grass : MonoBehaviour
     public float _FrustumCullEdgeOffset;
     int numInstances;
 
-    
 
     ComputeBuffer grassBladesBuffer;
     ComputeBuffer meshTriangles;
@@ -92,6 +92,8 @@ public class Grass : MonoBehaviour
    
 
     [Header("Clump gradient map")]
+    public float _CentreColorSmoothStepLower;
+    public float _CentreColorSmoothStepUpper;
     public float _ClumpColorUniformity;
     public Vector2Int gradientMapDimensions = new Vector2Int(128, 32);
     public Gradient gradientClump;
@@ -218,8 +220,7 @@ public class Grass : MonoBehaviour
 
         computeShader.SetVector("_Time", Shader.GetGlobalVector("_Time"));
         //computeShader.SetVector("_ProjectionParams", new Vector4(1, cam.nearClipPlane, cam.farClipPlane,1/cam.farClipPlane));
-
-
+        computeShader.SetFloat("_WindTexContrast", _WindTexContrast);
         //Texture depth = Shader.GetGlobalTexture("_CameraDepthTexture");
         //computeShader.SetTexture(0, "_DepthTexture", depth);
         computeShader.SetTextureFromGlobal(0, "DepthTexture", "_CameraDepthTexture");
@@ -229,12 +230,14 @@ public class Grass : MonoBehaviour
         computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
         computeShader.SetFloat("_FrustumCullEdgeOffset", _FrustumCullEdgeOffset);
         computeShader.SetFloat("_ClumpColorUniformity", _ClumpColorUniformity);
+        computeShader.SetFloat("_CentreColorSmoothStepLower", _ClumpColorUniformity);
+        computeShader.SetFloat("_CentreColorSmoothStepUpper", _CentreColorSmoothStepUpper);
         
         computeShader.SetFloat("_BigWindSpeed", _BigWindSpeed);
         computeShader.SetFloat("_BigWindScale", _BigWindScale);
         computeShader.SetFloat("_BigWindRotateAmount", _BigWindRotateAmount);
-        computeShader.SetFloat("_SmallWindSpeed", _SmallWindSpeed);
-        computeShader.SetFloat("_SmallWindScale", _SmallWindScale);
+        //computeShader.SetFloat("_SmallWindSpeed", _SmallWindSpeed);
+        //computeShader.SetFloat("_SmallWindScale", _SmallWindScale);
         //computeShader.SetFloat("_SmallWindRotateAmount", _SmallWindRotateAmount);
         computeShader.SetFloat("_WindControl", _WindControl);
 

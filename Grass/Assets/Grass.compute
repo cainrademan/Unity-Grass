@@ -85,8 +85,11 @@ float _Test2;
 float _Test3;
 float _Test4;
 float3 _WSpaceCameraPos;
+float _WindTexContrast;
 
 
+float _CentreColorSmoothStepLower;
+float _CentreColorSmoothStepUpper;
 float4x4 _VP_MATRIX;
 
 Texture2D WindTex; 
@@ -522,7 +525,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             //blade.color = clumpParamsIndex.xxx;
             float distanceToCentre = distance(raisedVertex.xz,  clumpCentre);
 
-            float atten = 1-smoothstep(_Test3,_Test4 , distanceToCentre);
+            float atten = 1-smoothstep(_CentreColorSmoothStepLower,_CentreColorSmoothStepUpper , distanceToCentre);
             float3 clumpColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, clumpHash.x, 0).xyz;
 
             float3 bladeColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, blade.hash.x, 0).xyz;
@@ -548,8 +551,8 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.sideBend = sideBend;
 
             blade.clumpColorDistanceFade = atten;
-
-            blade.windForce = (bigWind);
+            float windForce = saturate(  ((bigWind - 0.5) * max(_WindTexContrast, 0)) + 0.5f   );
+            blade.windForce = (windForce);
             //blade.windForce = (1+1)/2;
             //_GrassBlades[_2DIdTo1D(id)] = blade;
             _GrassBlades.Append(blade);

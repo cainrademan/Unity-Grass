@@ -244,8 +244,7 @@ MonoBehaviour:
   _BigWindSpeed: 0.01
   _BigWindScale: 0.001
   _BigWindRotateAmount: 0.3
-  _SmallWindSpeed: 0.01
-  _SmallWindScale: 0.001
+  _WindTexContrast: 1
   _VertexPlacementPower: 0.5
   _DistanceCullStartDist: 30
   _DistanceCullEndDist: 80
@@ -302,6 +301,8 @@ MonoBehaviour:
     tiltRandom: 0.3
     baseBend: 0.05
     bendRandom: 0.01
+  _CentreColorSmoothStepLower: 0
+  _CentreColorSmoothStepUpper: 0
   _ClumpColorUniformity: 0
   gradientMapDimensions: {x: 128, y: 32}
   gradientClump:
@@ -363,7 +364,7 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   testing: 0
-  texture: {fileID: 2800000, guid: 5fa2b27d47d91c947ba5e2f3315ea689, type: 3}
+  texture: {fileID: 2800000, guid: 6c599ccc906564542a924e2d3f758271, type: 3}
   texture2: {fileID: 2800000, guid: fc5c6858e2157614195a4e21d194c18a, type: 3}
 --- !u!4 &144754759
 Transform:
@@ -422,8 +423,7 @@ MonoBehaviour:
   _BigWindSpeed: 0.01
   _BigWindScale: 0.001
   _BigWindRotateAmount: 0.3
-  _SmallWindSpeed: 0
-  _SmallWindScale: 0
+  _WindTexContrast: 1
   _VertexPlacementPower: 1
   _DistanceCullStartDist: 20
   _DistanceCullEndDist: 50
@@ -450,6 +450,8 @@ MonoBehaviour:
     tiltRandom: 0.07
     baseBend: 0.18
     bendRandom: 0.12
+  _CentreColorSmoothStepLower: 0
+  _CentreColorSmoothStepUpper: 0
   _ClumpColorUniformity: 0
   gradientMapDimensions: {x: 128, y: 32}
   gradientClump:

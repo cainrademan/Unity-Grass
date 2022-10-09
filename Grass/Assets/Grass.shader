@@ -20,6 +20,7 @@ Shader "Unlit/Grass"
         _WaveSpeed("Wave Speed", Float) = 1
         _WavePower("Wave Power", Float) = 1
         _SinOffsetRange("Sin OffsetRange", Float) = 1
+        _PushTipOscillationForward("_PushTipOscillationForward", Float) = 1
         [Header(Shading)]
         _Kspec("Specular Strength", Float) = 0
         _Kd("Diffuse Strength", Float) = 0
@@ -108,6 +109,7 @@ Shader "Unlit/Grass"
             sampler2D _GrassAlbedo;
             sampler2D _GrassGloss;
             //sampler2D _GradientMap;
+            float _PushTipOscillationForward;
             float4 _MainTex_ST;
             float4 _WindTex_ST;
             float _TaperAmount;
@@ -260,7 +262,7 @@ Shader "Unlit/Grass"
                 
                 float windForce = blade.windForce;
 
-                windForce = saturate(  ((windForce - 0.5) * max(_Test4, 0)) + 0.5f   );
+                //windForce = saturate(  ((windForce - 0.5) * max(_WindTexContrast, 0)) + 0.5f   );
 
                 //if (windForce < 0.5){
                 
@@ -282,7 +284,9 @@ Shader "Unlit/Grass"
                 _WaveAmplitude = lerp(0,_WaveAmplitude,_WindControl);
                 _WaveSpeed = lerp(0,_WaveSpeed,_WindControl);
 
-                //_WaveAmplitude = _WaveAmplitude*blade.height;
+                float mult = 1-bend;
+
+               // _WaveAmplitude = _WaveAmplitude;
 
 
 
@@ -292,8 +296,8 @@ Shader "Unlit/Grass"
 
                 //p1ffset = (p1ffset) -  (pow(p1Weight,_WavePower)*_WaveAmplitude/100)/2;
                 //p2ffset = (p2ffset) -  _Test4*(pow(p2Weight,_WavePower)*_WaveAmplitude/100)/2;
-                p2ffset = (p2ffset) -  _Test3*(pow(p2Weight,_WavePower)*_WaveAmplitude/100)/2;
-                p3ffset = (p3ffset) -  _Test3*(pow(p3Weight,_WavePower)*_WaveAmplitude/100)/2;
+                //p2ffset = (p2ffset) -  _Test3*mult*(pow(p2Weight,_WavePower)*_WaveAmplitude/100)/2;
+                p3ffset = (p3ffset) -  _PushTipOscillationForward*mult*(pow(p3Weight,_WavePower)*_WaveAmplitude/100)/2;
                 //float p1ffset = pow(p1Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p1Weight*2*3.1415*_SinOffsetRange); 
                 //float p2ffset = pow(p2Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p2Weight*2*3.1415*_SinOffsetRange); 
                 //float p3ffset = pow(p3Weight,_WavePower)* (_WaveAmplitude/100) * sin((_Time+hash*2*3.1415)*_WaveSpeed +p3Weight*2*3.1415*_SinOffsetRange); 

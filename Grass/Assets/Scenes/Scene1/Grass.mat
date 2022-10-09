@@ -90,7 +90,7 @@ Material:
     - _BlendSurfaceNormalDistUpper: 135.3
     - _BumpScale: 1
     - _ClumpColorBlend: 1
-    - _CurvedNormalAmount: 30
+    - _CurvedNormalAmount: 3
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DistantDiff: 2.57
@@ -102,13 +102,14 @@ Material:
     - _GlossyReflections: 1
     - _Kamb: 1
     - _Kd: 1
-    - _Kspec: 2.84
+    - _Kspec: 10.44
     - _LengthShadingBaseLuminance: 0.24
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _PushTipOscillationForward: 3
     - _Shininess: 4
     - _ShininessLower: 0
     - _ShininessUpper: 1
@@ -117,15 +118,15 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _TaperAmount: 0.49
-    - _Test: 3.66
+    - _TaperAmount: 0.79
+    - _Test: 7.5
     - _Test2: 1.28
-    - _Test3: 1
+    - _Test3: 3
     - _Test4: 1
     - _UVSec: 0
-    - _WaveAmplitude: 40
+    - _WaveAmplitude: 80
     - _WavePower: 1
-    - _WaveSpeed: 60
+    - _WaveSpeed: 80
     - _WindRotateAmount: 1
     - _WindSpeed: 0.1
     - _WindStrength: 0.1
