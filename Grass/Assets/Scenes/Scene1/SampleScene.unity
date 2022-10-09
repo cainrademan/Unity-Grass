@@ -255,6 +255,8 @@ MonoBehaviour:
   _FrustumCullEdgeOffset: -2
   _Test: 0.3
   _Test2: 1.5708
+  _Test3: 0
+  _Test4: 5
   clumpTexHeight: 256
   clumpTexWidth: 256
   clumpingVoronoiMat: {fileID: 2100000, guid: 427f3176a375e484f86f3b548da71ba3, type: 2}
@@ -300,8 +302,38 @@ MonoBehaviour:
     tiltRandom: 0.3
     baseBend: 0.05
     bendRandom: 0.01
+  _ClumpColorUniformity: 0
   gradientMapDimensions: {x: 128, y: 32}
-  gradient:
+  gradientClump:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  gradientBlade:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
@@ -332,6 +364,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   testing: 0
   texture: {fileID: 2800000, guid: 5fa2b27d47d91c947ba5e2f3315ea689, type: 3}
+  texture2: {fileID: 2800000, guid: fc5c6858e2157614195a4e21d194c18a, type: 3}
 --- !u!4 &144754759
 Transform:
   m_ObjectHideFlags: 0
@@ -400,6 +433,8 @@ MonoBehaviour:
   _FrustumCullEdgeOffset: 0
   _Test: 1.71
   _Test2: 0.05
+  _Test3: 0
+  _Test4: 0
   clumpTexHeight: 256
   clumpTexWidth: 256
   clumpingVoronoiMat: {fileID: 2100000, guid: 427f3176a375e484f86f3b548da71ba3, type: 2}
@@ -415,8 +450,38 @@ MonoBehaviour:
     tiltRandom: 0.07
     baseBend: 0.18
     bendRandom: 0.12
+  _ClumpColorUniformity: 0
   gradientMapDimensions: {x: 128, y: 32}
-  gradient:
+  gradientClump:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  gradientBlade:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
     key1: {r: 1, g: 1, b: 1, a: 1}
@@ -447,6 +512,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   testing: 0
   texture: {fileID: 2800000, guid: 5fa2b27d47d91c947ba5e2f3315ea689, type: 3}
+  texture2: {fileID: 0}
 --- !u!4 &198886720
 Transform:
   m_ObjectHideFlags: 0

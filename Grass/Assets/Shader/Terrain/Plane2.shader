@@ -176,7 +176,9 @@ Shader "Custom/Plane2"
 
            //c= float4(float3(51, 26, 0)/255,1);
 
-           o.Albedo = c*IN.customColor;
+           fixed4 l = c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
+
+           o.Albedo = l*IN.customColor;
            //o.Albedo = float4(IN.uv_MainTex,0,1);
            //fixed4 c = tex2D (_Heightmap, IN.worldUV);
             //float3 norm = tex2D (_NormalMap, IN.worldUV);

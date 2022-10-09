@@ -89,20 +89,21 @@ Material:
     - _BlendSurfaceNormalDistLower: 0
     - _BlendSurfaceNormalDistUpper: 135.3
     - _BumpScale: 1
-    - _CurvedNormalAmount: 47
+    - _ClumpColorBlend: 1
+    - _CurvedNormalAmount: 30
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DistantDiff: 2
-    - _DistantSpec: 7.46
+    - _DistantDiff: 2.57
+    - _DistantSpec: 8.17
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _GlossScale: 15.7
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 1.14
+    - _Kamb: 1
     - _Kd: 1
-    - _Kspec: 4.8
-    - _LengthShadingBaseLuminance: 0.28
+    - _Kspec: 2.84
+    - _LengthShadingBaseLuminance: 0.24
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
@@ -143,5 +144,5 @@ Material:
     - _BottomColor: {r: 0.03457636, g: 0.1981132, b: 0.04378971, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TopColor: {r: 0.13358705, g: 0.3301887, b: 0.05762727, a: 1}
+    - _TopColor: {r: 0.22005615, g: 0.5566038, b: 0.09714311, a: 1}
   m_BuildTextureStacks: []

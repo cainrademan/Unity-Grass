@@ -20,6 +20,7 @@ struct GrassBlade {
     float3 color;
     float windForce;
     float sideBend;
+    float clumpColorDistanceFade;
 };
 
 
@@ -81,6 +82,8 @@ float _DistanceCullEndDist;
 float _DistanceCullMinimumGrassAmount;
 float _Test;
 float _Test2;
+float _Test3;
+float _Test4;
 float3 _WSpaceCameraPos;
 
 
@@ -96,7 +99,7 @@ float _BigWindScale;
 float _SmallWindSpeed;
 float _SmallWindScale;
 //float _SmallWindRotateAmount;
-
+float _ClumpColorUniformity;
 
 float4 _Time;
 
@@ -106,6 +109,7 @@ Texture2D HeightMap;
 SamplerState samplerHeightMap;
 
 Texture2D ClumpTex; 
+SamplerState my_point_repeat_sampler;
 SamplerState samplerClumpTex;
 float _ClumpScale;
 float _NumClumpParameters;
@@ -113,6 +117,8 @@ float _NumClumpParameters;
 Texture2D ClumpGradientMap; 
 SamplerState samplerClumpGradientMap;
 
+Texture2D BladeGradientMap;
+SamplerState samplerBladeGradientMap;
 //SamplerState my_linear_mirror_sample;
 
 
@@ -226,6 +232,48 @@ uint test(float3 pos)
 //    o.zw = pos.zw;
 //    return o;
 //}
+float2 slerp(float2 start, float2 end, float percent)
+{
+     // Dot product - the cosine of the angle between 2 vectors.
+     float d = dot(start, end);     
+     // Clamp it to be in the range of Acos()
+     // This may be unnecessary, but floating point
+     // precision can be a fickle mistress.
+     d = clamp(d, -1.0, 1.0);
+     // Acos(dot) returns the angle between start and end,
+     // And multiplying that by percent returns the angle between
+     // start and the final result.
+     float theta = acos(d)*percent;
+     float2 RelativeVec = normalize(end - start*d); // Orthonormal basis
+     // The final result.
+     return ((start*cos(theta)) + (RelativeVec*sin(theta)));
+
+     }
+
+
+     float BlendMode_Overlay(float base, float blend)
+{
+	return (base <= 0.5) ? 2*base*blend : 1 - 2*(1-base)*(1-blend);
+}
+
+float3 BlendMode_Overlay(float3 base, float3 blend)
+{
+	return float3(  BlendMode_Overlay(base.r, blend.r), 
+					BlendMode_Overlay(base.g, blend.g), 
+					BlendMode_Overlay(base.b, blend.b) );
+}
+
+float BlendMode_LinearDodge(float base, float blend)
+{
+	return min(1, base + blend);
+}
+
+float3 BlendMode_LinearDodge(float3 base, float3 blend)
+{
+	return float3(  BlendMode_LinearDodge(base.r, blend.r), 
+					BlendMode_LinearDodge(base.g, blend.g), 
+					BlendMode_LinearDodge(base.b, blend.b) );
+}
 
 [numthreads(8,8,1)]
 void Main (uint3 id : SV_DispatchThreadID)
@@ -250,13 +298,13 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         //Retrieve clump data for this blade from voronoi texture
         //This includes the clump parameter id, and the centre of this clump in texture space
-        float3 clumpData = ClumpTex.SampleLevel(samplerClumpTex, clumpUV, 0).xyz;
+        float3 clumpData = ClumpTex.SampleLevel(samplerClumpTex, clumpUV,0).xyz;
 
         //This is the index of the clump parameter set for this blade
-        float clumpParamsIndex = clumpData.x*_NumClumpParameters;
+        float clumpParamsIndex = clumpData.x;
 
         //Retrieve the correct set of blade parameters
-        ClumpParametersStruct bladeParameters = _ClumpParameters[int(round(clumpParamsIndex))]; 
+        ClumpParametersStruct bladeParameters = _ClumpParameters[int((clumpParamsIndex))]; 
 
         //bladeParameters = _ClumpParameters[2];
 
@@ -316,9 +364,9 @@ void Main (uint3 id : SV_DispatchThreadID)
 
         
 
-        
-
-        
+        //isInFrustum = 1;
+        //distanceCull = 1;
+        occlusionCull = 1;
 
 
         if (isInFrustum == 1 && distanceCull == 1 && occlusionCull == 1){
@@ -350,15 +398,19 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             //Compute the facing by lerping between random facing and shared clump facing based on the pointInSameDirection parameter
 
-            float2 clumpHash = hashwithoutsine22(clumpCentre+float2(0.13, 1.111));
+            float2 clumpHash = hashwithoutsine22(clumpCentre);
 
-            float2 sharedClumpFacing = normalize( clumpHash  *2 - 1);
+            //float2 clumpHash = float2(rand(clumpCentre.xyx), rand(clumpCentre.yyx));
+
+            float2 sharedClumpFacing = normalize( tan((clumpHash+float2(0.13, 1.111))  *2 - 1));
+
+            //float2 sharedClumpFacing = normalize(clumpCentre);
 
             float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
 
-            float2 combinedFacing = normalize(lerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
+            float2 combinedFacing = normalize(slerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
 
-            bladeFacing = sharedClumpFacing ;
+            bladeFacing = combinedFacing ;
 
             float angle = atan2(bladeFacing.y,bladeFacing.x);
 
@@ -468,19 +520,34 @@ void Main (uint3 id : SV_DispatchThreadID)
             //blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
             blade.surfaceNorm = norm;
             //blade.color = clumpParamsIndex.xxx;
+            float distanceToCentre = distance(raisedVertex.xz,  clumpCentre);
 
+            float atten = 1-smoothstep(_Test3,_Test4 , distanceToCentre);
             float3 clumpColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, clumpHash.x, 0).xyz;
 
-            blade.color = clumpColor.xyz;
+            float3 bladeColor =  ClumpGradientMap.SampleLevel(samplerClumpGradientMap, blade.hash.x, 0).xyz;
+            //float3 bladeColor =  BladeGradientMap.SampleLevel(samplerBladeGradientMap, blade.hash.x, 0).xyz;
 
+            //float3 combinedColor = lerp(clumpColor, clumpColor*bladeColor, _ClumpColorUniformity);
+            //float3 blendedColor = clumpColor*bladeColor;
+            //float3 blendedColor = BlendMode_LinearDodge(clumpColor, bladeColor);
 
+            float3 finalColor = lerp(clumpColor, bladeColor , _ClumpColorUniformity);
+
+            blade.color = finalColor.xyz;
             
+            //blade.color = float3(clumpCentre.xy,0);
+            //blade.color =  clumpHash.xxx;
+            //blade.color =  clumpParamsIndex.xxx;
+            //blade.color = float3(sharedClumpFacing.xy,0);
             float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
             float sideBend = smoothstep(_Test, 0, viewAlignment)*_Test2;
             //float sideBend = viewAlignment < _Test  ? _Test2 : 0;
             
 
             blade.sideBend = sideBend;
+
+            blade.clumpColorDistanceFade = atten;
 
             blade.windForce = (bigWind);
             //blade.windForce = (1+1)/2;

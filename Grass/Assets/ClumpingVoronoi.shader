@@ -50,6 +50,11 @@ Shader "Hidden/ClumpingVoronoi"
             
             }
 
+            //float modI(float a,float b) {
+            //    float m=a-floor((a+0.5)/b)*b;
+            //    return floor(m+0.5);
+    
+            //    }
             float4 frag (v2f i) : SV_Target
             {
                 //fixed4 col = tex2D(_MainTex, i.uv);
@@ -66,15 +71,15 @@ Shader "Hidden/ClumpingVoronoi"
                 float radius = 0.01;
                 float falloff = 0.01;
 
-                float minDist = 1000;
+                float minDist = 100000;
 
-                float id;
+                float id = 12;
 
                 //float numClumps = 2;
 
-                float2 clumpCentre;
-
-                for (int j =0; j < 40; j++){
+                float2 clumpCentre = float2(0,0);
+                _NumClumps = 4;
+                for (int j =1; j < 40; j++){
                     float2 jj = float2(j,j);
                     float2 p =  N22(jj);
                     //point = N22(p);
@@ -88,7 +93,9 @@ Shader "Hidden/ClumpingVoronoi"
                     if (d<minDist){
                     
                         minDist = d;
-                        id = fmod(j,_NumClumps);
+                        id = fmod((int)j,(int)_NumClumps);
+                        //id = fmod(j,_NumClumps);
+                        //id = modI(j,_NumClumps);
                         clumpCentre = p;
                     }
 
@@ -97,7 +104,12 @@ Shader "Hidden/ClumpingVoronoi"
                 //id = id/20;
 
                 //float3 col = float3(id,clumpCentre);
-                float3 col = float3(id/_NumClumps,clumpCentre );
+                float3 col = float3(id,clumpCentre );
+
+                //float3 col = float3(2,3,4);
+
+                //float3 col = float3(id,clumpCentre );
+
                 //float3 col = float3(2,2,2)/3;
                 //fixed4 col = fixed4(rand,0,1);
 

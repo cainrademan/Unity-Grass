@@ -31,6 +31,7 @@ public class Grass : MonoBehaviour
     public float _BigWindRotateAmount;
     public float _SmallWindSpeed;
     public float _SmallWindScale;
+    
     //public float _SmallWindRotateAmount;
 
 
@@ -78,7 +79,8 @@ public class Grass : MonoBehaviour
     [Header("(Dev)Testing Variables")]
     public float _Test;
     public float _Test2;
-
+    public float _Test3;
+    public float _Test4;
     [Header("Clumping")]
     public int clumpTexHeight;
     public int clumpTexWidth;
@@ -90,11 +92,13 @@ public class Grass : MonoBehaviour
    
 
     [Header("Clump gradient map")]
+    public float _ClumpColorUniformity;
     public Vector2Int gradientMapDimensions = new Vector2Int(128, 32);
-    public Gradient gradient;
+    public Gradient gradientClump;
+    public Gradient gradientBlade;
     public bool testing = false;
     public Texture2D texture;
-
+    public Texture2D texture2;
 
 
     [Serializable]
@@ -154,6 +158,7 @@ public class Grass : MonoBehaviour
         windTexID = Shader.PropertyToID("WindTex"),
         clumpTexID = Shader.PropertyToID("ClumpTex"),
         ClumpGradientMapId = Shader.PropertyToID("ClumpGradientMap"),
+        BladeGradientMapId = Shader.PropertyToID("BladeGradientMap"),
         vpMatrixID = Shader.PropertyToID("_VP_MATRIX");
 
 
@@ -206,6 +211,8 @@ public class Grass : MonoBehaviour
 
         computeShader.SetFloat("_Test", _Test);
         computeShader.SetFloat("_Test2", _Test2);
+        computeShader.SetFloat("_Test3", _Test3);
+        computeShader.SetFloat("_Test4", _Test4);
         computeShader.SetFloat("_DistanceCullMinimumGrassAmount", _DistanceCullMinimumGrassAmount);
 
 
@@ -221,7 +228,8 @@ public class Grass : MonoBehaviour
 
         computeShader.SetFloat("_FrustumCullNearOffset", _FrustumCullNearOffset);
         computeShader.SetFloat("_FrustumCullEdgeOffset", _FrustumCullEdgeOffset);
-
+        computeShader.SetFloat("_ClumpColorUniformity", _ClumpColorUniformity);
+        
         computeShader.SetFloat("_BigWindSpeed", _BigWindSpeed);
         computeShader.SetFloat("_BigWindScale", _BigWindScale);
         computeShader.SetFloat("_BigWindRotateAmount", _BigWindRotateAmount);
@@ -255,7 +263,7 @@ public class Grass : MonoBehaviour
     {
         //cam.depthTextureMode = DepthTextureMode.Depth;
         numInstances = resolution * resolution;
-        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 17, ComputeBufferType.Append);
+        grassBladesBuffer = new ComputeBuffer(resolution * resolution, sizeof(float) * 18, ComputeBufferType.Append);
         grassBladesBuffer.SetCounterValue(0);
 
     }
@@ -299,9 +307,9 @@ public class Grass : MonoBehaviour
         }
 
         clumpingVoronoiMat.SetFloat("_NumClumps", clumpParameters.Count);
-
-        RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32);
-        RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32)   ;
+        Texture2D startTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.RGBAFloat, false, true);
+        //RenderTexture startTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGB32);
+        RenderTexture clumpVoronoiTex = RenderTexture.GetTemporary(clumpTexWidth, clumpTexHeight, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear)   ;
         Graphics.Blit(startTex, clumpVoronoiTex, clumpingVoronoiMat, 0);
 
 
@@ -309,14 +317,30 @@ public class Grass : MonoBehaviour
 
 
         RenderTexture.active = clumpVoronoiTex;
-        Texture2D clumpTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.ARGB32, false);
-        clumpTex.ReadPixels(new Rect(0, 0, clumpTexWidth, clumpTexHeight), 0, 0);
+        Texture2D clumpTex = new Texture2D(clumpTexWidth, clumpTexHeight, TextureFormat.RGBAFloat, false,true);
+
+        clumpTex.filterMode = FilterMode.Point;
+        Debug.Log(clumpTex.filterMode);
+
+        clumpTex.ReadPixels(new Rect(0, 0, clumpTexWidth, clumpTexHeight), 0, 0, true);
         clumpTex.Apply();
         RenderTexture.active = null;
 
+        Debug.Log("WIDTH: " + clumpTexWidth);
+
+        //for (int i = 0; i < clumpTexWidth; i++) {
+        //    for (int j = 0; j < clumpTexWidth; j++)
+        //    {
+        //        Color pix = clumpTex.GetPixel(i, j);
+
+        //        Debug.Log("COLOR: " + pix);
+        //    }
+
+        //}
+
         computeShader.SetTexture(0, clumpTexID, clumpTex);
 
-        RenderTexture.ReleaseTemporary(startTex);
+        //RenderTexture.ReleaseTemporary(startTex);
         RenderTexture.ReleaseTemporary(clumpVoronoiTex);
 
         //var keywordSpace = computeShader.keywordSpace;
@@ -413,7 +437,7 @@ public class Grass : MonoBehaviour
         computeShader.SetTexture(0, windTexID, WindTex);
 
         computeShader.SetTexture(0, ClumpGradientMapId, texture);
-
+        computeShader.SetTexture(0, BladeGradientMapId, texture2);
         //Set Clump parameter buffer
         //ClumpParametersStruct[] parameters = new ClumpParametersStruct[2];
 
@@ -468,7 +492,7 @@ public class Grass : MonoBehaviour
             texture.wrapMode = TextureWrapMode.Clamp;
             for (int x = 0; x < gradientMapDimensions.x; x++)
             {
-                Color color = gradient.Evaluate((float)x / (float)gradientMapDimensions.x);
+                Color color = gradientClump.Evaluate((float)x / (float)gradientMapDimensions.x);
                 for (int y = 0; y < gradientMapDimensions.y; y++)
                 {
                     texture.SetPixel(x, y, color);
@@ -476,6 +500,22 @@ public class Grass : MonoBehaviour
             }
             texture.Apply();
             computeShader.SetTexture(0, ClumpGradientMapId, texture);
+
+            texture2 = new Texture2D(gradientMapDimensions.x, gradientMapDimensions.y);
+            texture2.wrapMode = TextureWrapMode.Clamp;
+            for (int x = 0; x < gradientMapDimensions.x; x++)
+            {
+                Color color = gradientBlade.Evaluate((float)x / (float)gradientMapDimensions.x);
+                for (int y = 0; y < gradientMapDimensions.y; y++)
+                {
+                    texture2.SetPixel(x, y, color);
+                }
+            }
+            texture2.Apply();
+            computeShader.SetTexture(0, BladeGradientMapId, texture2) ;
+
+
+
             //if (material.HasProperty("_GradientMap"))
             //{
             //    material.SetTexture("_GradientMap", texture);

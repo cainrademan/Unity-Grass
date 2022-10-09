@@ -2,6 +2,7 @@ Shader "Unlit/Grass"
 {
     Properties
     {
+        _ClumpColorBlend("_ClumpColorBlend", Range (0, 1)) = 1
          [Header(Albedo)]
         _GrassAlbedo("Grass albedo", 2D) = "white" {}
         _AlbedoScale("Albedo Scale", Float) = 0
@@ -74,6 +75,7 @@ Shader "Unlit/Grass"
                 float3 color;
                 float windForce;
                 float sideBend;
+                float clumpColorDistanceFade;
                 
         };
     
@@ -96,7 +98,7 @@ Shader "Unlit/Grass"
                 float3 originalNorm : TEXCOORD3;
                 float3 worldPos : TEXCOORD4;
                 float3 surfaceNorm : TEXCOORD5;
-                float3 vertexColor : TEXCOORD6;
+                float4 vertexColor : TEXCOORD6;
             };
             float3 _WSpaceCameraPos;
             float _WindControl;
@@ -141,6 +143,7 @@ Shader "Unlit/Grass"
             float _BlendSurfaceNormalDistUpper;
             float _CurvedNormalAmount;
             float _BlendSurfaceNormalDistLower;
+            float _ClumpColorBlend;
             float3x3 AngleAxis3x3(float angle, float3 axis)
 	        {
 		        float c, s;
@@ -279,7 +282,7 @@ Shader "Unlit/Grass"
                 _WaveAmplitude = lerp(0,_WaveAmplitude,_WindControl);
                 _WaveSpeed = lerp(0,_WaveSpeed,_WindControl);
 
-                _WaveAmplitude = _WaveAmplitude*blade.height;
+                //_WaveAmplitude = _WaveAmplitude*blade.height;
 
 
 
@@ -371,7 +374,7 @@ Shader "Unlit/Grass"
                 o.viewDir = normalize(_WSpaceCameraPos-newPos);
                 o.curvedNorm = normalize(curvedNormal);
                 o.originalNorm = normalize(normal);
-                o.vertexColor = vertColor;
+                o.vertexColor = float4(vertColor.xyz, blade.clumpColorDistanceFade);
                 o.color = fixed4(blade.color,1);
                 //o.color = fixed4(windForce.xxx,1);
                 o.vertex = mul(UNITY_MATRIX_VP, float4(newPos, 1));
@@ -446,9 +449,10 @@ Shader "Unlit/Grass"
                 grassAlbedo = saturate(grassAlbedo*_AlbedoStrength+noAlbedoMask);
 
                 //fixed4 gradientCol = tex2D(_GradientMap, float2(i.vertexColor.r, 0));
-
-                fixed4 col = lerp(_BottomColor,_TopColor, i.vertexColor.r) *light* grassAlbedo*i.color;
-
+                fixed4 grassCol = lerp(_BottomColor,_TopColor, i.vertexColor.r);
+                fixed4 clumpCol =  lerp(grassCol, i.color*grassCol, _ClumpColorBlend*i.vertexColor.w);
+                fixed4 col =  light* grassAlbedo * clumpCol;
+                //col = lerp(col, i.color, _ClumpColorBlend);
                 //col =i.color;
                 //col = fixed4(shininess.xxx/_ShininessUpper,1);
                 //fixed4 col =  light* grassAlbedo* i.color;
