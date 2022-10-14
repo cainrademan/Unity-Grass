@@ -72,6 +72,9 @@ float3 _PlaneCentre;
 //float _GrassBaseBend = 0.01;
 //float _GrassBendRandom = 0.01;
 
+float _HeightMapScale;
+float _HeightMapMultiplier;
+
 float _FrustumCullNearOffset;
 float _FrustumCullEdgeOffset;
 
@@ -87,6 +90,8 @@ float _Test4;
 float3 _WSpaceCameraPos;
 float _WindTexContrast;
 
+float _GlobalWindFacingAngle;
+float _GlobalWindFacingContribution;
 
 float _CentreColorSmoothStepLower;
 float _CentreColorSmoothStepUpper;
@@ -94,6 +99,8 @@ float4x4 _VP_MATRIX;
 
 Texture2D WindTex; 
 SamplerState samplerWindTex;
+
+float _GlobalWindFacing;
 
 float _WindControl;
 float _BigWindSpeed;
@@ -205,12 +212,12 @@ uint test(float3 pos)
     
 
         float2 worldUV = vertex.xz;
-
-        worldUV = worldUV * (1/float2(500,500));
+        
+        worldUV = worldUV * (1/_HeightMapScale.xx);
 
         float height = HeightMap.SampleLevel(samplerHeightMap, worldUV, 0).x;
 
-        vertex.y += height*22.5;
+        vertex.y += height*_HeightMapMultiplier;
 
         return vertex;
     
@@ -411,9 +418,13 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             float2 bladeFacing = normalize( hashwithoutsine22(id.xy)  *2 - 1); 
 
-            float2 combinedFacing = normalize(slerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
+            float2 combinedFacing = normalize(lerp(bladeFacing, sharedClumpFacing, bladeParameters.pointInSameDirection));
 
-            bladeFacing = combinedFacing ;
+            float2 globalWindFacingVec= float2(cos(_GlobalWindFacingAngle), sin(_GlobalWindFacingAngle));
+
+            float2 globalFacing = normalize(lerp(combinedFacing, globalWindFacingVec, _GlobalWindFacingContribution));
+
+            bladeFacing = globalFacing ;
 
             float angle = atan2(bladeFacing.y,bladeFacing.x);
 
@@ -442,7 +453,7 @@ void Main (uint3 id : SV_DispatchThreadID)
 
                 float2 bigWindUV = worldUV * (_BigWindScale);
 
-                bigWindUV += _Time.y * float2(1,0) *_BigWindSpeed;
+                bigWindUV += _Time.y * globalWindFacingVec *_BigWindSpeed;
 
                 //Alternate method for big wind using same method as small wind
                 //float bigWind = (tex2Dlod( _WindTex, float4(bigWindUV.x, bigWindUV.y, 0,0)).x   );

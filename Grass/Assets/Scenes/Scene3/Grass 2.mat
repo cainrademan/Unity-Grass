@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass
+  m_Name: Grass 2
   m_Shader: {fileID: 4800000, guid: 7cbe3b7d942028843a9c1d9e33e70116, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -45,7 +45,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GradientMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0dff70ef9a112034fa505ebb506866fd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GrassAlbedo:
@@ -83,54 +83,54 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlbedoScale: 0.95
-    - _AlbedoStrength: 3.06
+    - _AlbedoStrength: 3.46
     - _AmbientLight: 0.57
     - _BaseShadowStrength: 0.61
     - _BigWindSpeed: 0.1
     - _BlendSurfaceNormalDistLower: 0
-    - _BlendSurfaceNormalDistUpper: 237.93
+    - _BlendSurfaceNormalDistUpper: 60.56
     - _BumpScale: 1
-    - _ClumpColorBlend: 0.55
-    - _CurvedNormalAmount: 2
+    - _ClumpColorBlend: 0.64
+    - _CurvedNormalAmount: 0.5
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DistantDiff: 1
-    - _DistantSpec: 1
+    - _DistantDiff: 0.24
+    - _DistantSpec: 0
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _GlossScale: 15.7
+    - _GlossScale: 2.09
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 1
-    - _Kd: 1
-    - _Kspec: 3
-    - _LengthShadingBaseLuminance: 0.24
+    - _Kamb: 2
+    - _Kd: 0
+    - _Kspec: 2
+    - _LengthShadingBaseLuminance: 0.22
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PushTipOscillationForward: 1
+    - _PushTipOscillationForward: 0.5
     - _Shininess: 4
-    - _ShininessLower: 0
-    - _ShininessUpper: 1
-    - _SinOffsetRange: -1
+    - _ShininessLower: 1
+    - _ShininessUpper: 6
+    - _SinOffsetRange: -0.5
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularLengthAtten: 5.9
+    - _SpecularLengthAtten: 0
     - _SrcBlend: 1
-    - _TaperAmount: 0.79
-    - _Test: 7.5
+    - _TaperAmount: 0.64
+    - _Test: 8.59
     - _Test2: 1.28
-    - _Test3: 3
+    - _Test3: 5
     - _Test4: 1
-    - _TipColLowerDist: 0.8
+    - _TipColLowerDist: 0.68
     - _TipColUpperDist: 1
     - _UVSec: 0
-    - _WaveAmplitude: 80
-    - _WavePower: 1
-    - _WaveSpeed: 80
+    - _WaveAmplitude: 130
+    - _WavePower: 2
+    - _WaveSpeed: 30
     - _WindRotateAmount: 1
     - _WindSpeed: 0.1
     - _WindStrength: 0.1
@@ -143,12 +143,12 @@ Material:
     - _ks: 3.45
     - _kspec: 0
     - _p1Flexibility: 1
-    - _p2Flexibility: 2
+    - _p2Flexibility: 1
     - _shininess: 0.53
     m_Colors:
-    - _BottomColor: {r: 0.03457636, g: 0.1981132, b: 0.04378971, a: 1}
+    - _BottomColor: {r: 0.084905684, g: 0.070042744, b: 0.018022435, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TipCol: {r: 0.21960784, g: 0.5568628, b: 0.09803922, a: 1}
-    - _TopColor: {r: 0.22005615, g: 0.5566038, b: 0.09714311, a: 1}
+    - _TipCol: {r: 0.41509432, g: 0.34371993, b: 0.09985758, a: 1}
+    - _TopColor: {r: 0.41568628, g: 0.34509805, b: 0.09803922, a: 1}
   m_BuildTextureStacks: []

@@ -27,6 +27,10 @@ Shader "Unlit/Grass"
         _Kamb("Ambient Strength", Float) = 0
         _ShininessLower("Lower Shininess", Float) = 1
         _ShininessUpper("Upper Shininess", Float) = 1
+        _SpecularLengthAtten("Specular Length Atten", Float) = 1
+        _TipCol ("Tip Color", Color) = (.25, .5, .5, 1)
+        _TipColLowerDist("_TipColLowerDist", Float) = 0.8
+        _TipColUpperDist("_TipColUpperDist", Float) = 1
         _TopColor ("Top Color", Color) = (.25, .5, .5, 1)
         _BottomColor ("Bottom Color", Color) = (.25, .5, .5, 1)
         _LengthShadingStrength("Length shading multiplier", Float) = 1
@@ -42,7 +46,7 @@ Shader "Unlit/Grass"
         _Test2("_Test2", Float) = 0
         _Test3("_Test3", Float) = 0
         _Test4("_Test4", Float) = 0
-        //_GradientMap ("Gradient map", 2D) = "white" {}
+        _GradientMap ("Gradient map", 2D) = "white" {}
       
 
     }
@@ -58,6 +62,8 @@ Shader "Unlit/Grass"
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+
+            #pragma multi_compile_local __ USE_CLUMP_COLORS
 
             #include "UnityCG.cginc"
             #include "Lighting.cginc"
@@ -108,7 +114,10 @@ Shader "Unlit/Grass"
             sampler2D _WindTex;
             sampler2D _GrassAlbedo;
             sampler2D _GrassGloss;
-            //sampler2D _GradientMap;
+            sampler2D _GradientMap;
+            float _TipColLowerDist;
+            float _TipColUpperDist;
+            float _SpecularLengthAtten;
             float _PushTipOscillationForward;
             float4 _MainTex_ST;
             float4 _WindTex_ST;
@@ -119,6 +128,7 @@ Shader "Unlit/Grass"
             float _WaveSpeed;
             float _WavePower;
             float _SinOffsetRange;
+            float4 _TipCol;
             float4 _TopColor;
             float4 _BottomColor;
             float _AmbientLight;
@@ -246,6 +256,14 @@ Shader "Unlit/Grass"
                 float3 bladeDir = normalize(p3);
                 float3 bezCtrlOffsetDir = normalize(cross(bladeDir, float3(0,0,1)));
 
+                //float3 p1;
+                //float3 p2; 
+
+                //p1.y =  0.33* p3.y;
+                //p2.y =  0.66* p3.y;
+
+                //p1.x =  0.33* p3.x;
+                //p2.x =  0.66* p3.x;
                 float3 p1 = 0.33* p3;
                 float3 p2 = 0.66 * p3;
 
@@ -410,7 +428,7 @@ Shader "Unlit/Grass"
 
                 float surfaceNormalBlendSmoothstep = smoothstep(_BlendSurfaceNormalDistLower,_BlendSurfaceNormalDistUpper, distToCam);
 
-                //n = lerp(n, normalize(i.surfaceNorm), surfaceNormalBlendSmoothstep);
+               n = lerp(n, normalize(i.surfaceNorm), surfaceNormalBlendSmoothstep);
 
                 n= normalize(n);
 
@@ -428,7 +446,7 @@ Shader "Unlit/Grass"
 
                 _Kspec = lerp(_Kspec, _DistantSpec, surfaceNormalBlendSmoothstep);
 
-                float spec = _Kspec* pow(saturate(dot(r,v)),shininess)   *      pow(i.vertexColor.r,_Test);
+                float spec = _Kspec* pow(saturate(dot(r,v)),shininess)   *      pow(i.vertexColor.r,_SpecularLengthAtten);
 
                 _Kd = lerp(_Kd, _DistantDiff, surfaceNormalBlendSmoothstep);
 
@@ -439,10 +457,10 @@ Shader "Unlit/Grass"
                                + spec;
                 
                  
-                //float lengthShading =  (i.vertexColor.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
-                float lengthShading = i.vertexColor.r;
+                float lengthShading =  saturate(i.vertexColor.r * _LengthShadingStrength + _LengthShadingBaseLuminance);
+                //float lengthShading = i.vertexColor.r;
 
-                lengthShading = saturate(  ((lengthShading - 0.5) * max(_LengthShadingStrength, 0)) + 0.5f   ) + _LengthShadingBaseLuminance;
+                //lengthShading = saturate(  ((lengthShading - 0.5) * max(_LengthShadingStrength, 0)) + 0.5f   + _LengthShadingBaseLuminance );
 
                 light *= lengthShading;
 
@@ -452,10 +470,27 @@ Shader "Unlit/Grass"
 
                 grassAlbedo = saturate(grassAlbedo*_AlbedoStrength+noAlbedoMask);
 
-                //fixed4 gradientCol = tex2D(_GradientMap, float2(i.vertexColor.r, 0));
+                //fixed4 grassCol = tex2D(_GradientMap, float2(i.vertexColor.r, 0));
                 fixed4 grassCol = lerp(_BottomColor,_TopColor, i.vertexColor.r);
-                fixed4 clumpCol =  lerp(grassCol, i.color*grassCol, _ClumpColorBlend*i.vertexColor.w);
-                fixed4 col =  light* grassAlbedo * clumpCol;
+
+                float sstep = smoothstep(_TipColLowerDist,_TipColUpperDist,i.vertexColor.r );
+
+                grassCol  = lerp(grassCol,_TipCol, sstep);
+
+                //grassCol = _TipCol;
+
+                fixed4 col;
+
+                #if USE_CLUMP_COLORS 
+                    fixed4 clumpCol =  lerp(grassCol, i.color*grassCol, _ClumpColorBlend*i.vertexColor.w);
+                    col =  light* grassAlbedo * clumpCol;
+                    //col = i.color;
+
+                #else
+                    col =  light* grassAlbedo * grassCol;
+                #endif
+
+                
                 //col = lerp(col, i.color, _ClumpColorBlend);
                 //col =i.color;
                 //col = fixed4(shininess.xxx/_ShininessUpper,1);

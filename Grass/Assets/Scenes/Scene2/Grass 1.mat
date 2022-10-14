@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 7cbe3b7d942028843a9c1d9e33e70116, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - USE_CLUMP_COLORS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -44,7 +45,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GradientMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 0533ca1e3e8bfa949abc3ce9c7fd5893, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GrassAlbedo:
@@ -87,43 +88,47 @@ Material:
     - _BaseShadowStrength: 0.61
     - _BigWindSpeed: 0.1
     - _BlendSurfaceNormalDistLower: 0
-    - _BlendSurfaceNormalDistUpper: 135.3
+    - _BlendSurfaceNormalDistUpper: 105.59
     - _BumpScale: 1
     - _ClumpColorBlend: 1
-    - _CurvedNormalAmount: 2
+    - _CurvedNormalAmount: 2.01
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DistantDiff: 2
-    - _DistantSpec: 7.46
+    - _DistantSpec: 1.5
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _GlossScale: 15.7
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 2.24
-    - _Kd: 1
-    - _Kspec: 7.9
+    - _Kamb: 1.52
+    - _Kd: 2
+    - _Kspec: 10
     - _LengthShadingBaseLuminance: 0.82
     - _LengthShadingStrength: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _PushTipOscillationForward: 1
     - _Shininess: 4
-    - _ShininessLower: 0
-    - _ShininessUpper: 1
+    - _ShininessLower: 5
+    - _ShininessUpper: 6
     - _SinOffsetRange: -0.5
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SpecularLengthAtten: 1
     - _SrcBlend: 1
-    - _TaperAmount: 0.7
-    - _Test: 3.66
+    - _TaperAmount: 0.8
+    - _Test: 2.3
     - _Test2: 1.28
     - _Test3: 5
     - _Test4: 1
+    - _TipColLowerDist: 0.61
+    - _TipColUpperDist: 1.21
     - _UVSec: 0
-    - _WaveAmplitude: 100
+    - _WaveAmplitude: 60
     - _WavePower: 1
     - _WaveSpeed: 40
     - _WindRotateAmount: 1
@@ -144,5 +149,6 @@ Material:
     - _BottomColor: {r: 0.103773594, g: 0.057254396, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _TipCol: {r: 0.6603774, g: 0.35839197, b: 0.003114995, a: 1}
     - _TopColor: {r: 0.24528301, g: 0.18045138, b: 0.100658596, a: 1}
   m_BuildTextureStacks: []

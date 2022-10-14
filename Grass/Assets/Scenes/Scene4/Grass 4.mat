@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass
+  m_Name: Grass 4
   m_Shader: {fileID: 4800000, guid: 7cbe3b7d942028843a9c1d9e33e70116, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -45,7 +45,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GradientMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f559a1824353c8f4d93eef75fe7bceae, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _GrassAlbedo:
@@ -88,49 +88,49 @@ Material:
     - _BaseShadowStrength: 0.61
     - _BigWindSpeed: 0.1
     - _BlendSurfaceNormalDistLower: 0
-    - _BlendSurfaceNormalDistUpper: 237.93
+    - _BlendSurfaceNormalDistUpper: 82.81
     - _BumpScale: 1
-    - _ClumpColorBlend: 0.55
-    - _CurvedNormalAmount: 2
+    - _ClumpColorBlend: 1
+    - _CurvedNormalAmount: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DistantDiff: 1
-    - _DistantSpec: 1
+    - _DistantSpec: 2.7
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _GlossScale: 15.7
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Kamb: 1
+    - _Kamb: 0.5
     - _Kd: 1
-    - _Kspec: 3
-    - _LengthShadingBaseLuminance: 0.24
-    - _LengthShadingStrength: 1
+    - _Kspec: 10
+    - _LengthShadingBaseLuminance: 0.4
+    - _LengthShadingStrength: 1.11
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PushTipOscillationForward: 1
     - _Shininess: 4
-    - _ShininessLower: 0
-    - _ShininessUpper: 1
+    - _ShininessLower: 10
+    - _ShininessUpper: 12
     - _SinOffsetRange: -1
     - _SmallWindSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _SpecularLengthAtten: 5.9
+    - _SpecularLengthAtten: 1
     - _SrcBlend: 1
-    - _TaperAmount: 0.79
-    - _Test: 7.5
+    - _TaperAmount: 0
+    - _Test: 0
     - _Test2: 1.28
-    - _Test3: 3
+    - _Test3: 5
     - _Test4: 1
     - _TipColLowerDist: 0.8
     - _TipColUpperDist: 1
     - _UVSec: 0
-    - _WaveAmplitude: 80
-    - _WavePower: 1
-    - _WaveSpeed: 80
+    - _WaveAmplitude: 120
+    - _WavePower: 2
+    - _WaveSpeed: 30
     - _WindRotateAmount: 1
     - _WindSpeed: 0.1
     - _WindStrength: 0.1
@@ -146,9 +146,9 @@ Material:
     - _p2Flexibility: 2
     - _shininess: 0.53
     m_Colors:
-    - _BottomColor: {r: 0.03457636, g: 0.1981132, b: 0.04378971, a: 1}
+    - _BottomColor: {r: 0, g: 0.14150941, b: 0.12769806, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _TipCol: {r: 0.21960784, g: 0.5568628, b: 0.09803922, a: 1}
-    - _TopColor: {r: 0.22005615, g: 0.5566038, b: 0.09714311, a: 1}
+    - _TipCol: {r: 0.25, g: 0.5, b: 0.5, a: 1}
+    - _TopColor: {r: 0.509434, g: 0.509434, b: 0.509434, a: 1}
   m_BuildTextureStacks: []
