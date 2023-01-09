@@ -22,12 +22,20 @@ The grass is quite performant (although there are crucial optimisations that sho
 - **Frustum culling**, Blades outside of the viewing frustum are not rendered
 - **Distance culling**, Fewer blades are rendered at distance, with a smooth transition between near and far
 
-## Overview of process
+## Overview
 
-A compute shader is run: each thread of the compute shader computes a single blade of grass. First, a position is computed: the blades are evenly spread across the terrain and slightly jittered. We check if the grass blade should be rendered by doing frustum and distance culling on the position. If the blade should be rendered, we continue, else we drop out. Each blade belongs to a particular clump. Each clump type (ClumpParametersStruct) has its own set of artist-authored parameters that determine things like the shape of the blade, color, and movement due to wind. The computed parameters for the blade are packed into a GrassBlade struct and added to an AppendBuffer. The vertex shader is then told to render many blades of grass using Graphics.DrawProceduralIndirect().
+A compute shader is run: each thread of the compute shader computes a single blade of grass. First, a position is computed: the blades are evenly spread across the terrain and slightly jittered. We check if the grass blade should be rendered by doing frustum and distance culling on the position. If the blade should be rendered, we continue, else we drop out. Each blade belongs to a particular clump. Each clump type (ClumpParametersStruct) has its own set of artist-authored parameters that determine things like the height, bend, and color of the blade. The computed parameters for the blade are packed into a GrassBlade struct and added to an AppendBuffer. 
 
 > **_NOTE:_**
-It is most convenient to use an AppendBuffer as opposed to a RWStructuredBuffer because the number of blades rendered varies per frame. It is possible to use a RWStructuredBuffer though as demonstrated in Acerolas video. The vertex shader needs to know how many blades to draw. This is achieved by copying the size of the AppendBuffer into the indirectArgsBuffer of DrawProceduralIndirect() using ComputeBuffer.CopyCount(). 
+It is most convenient to use an AppendBuffer as opposed to a RWStructuredBuffer because the number of blades rendered varies per frame due to frustum and distance culling. It is possible to use a RWStructuredBuffer though as demonstrated in [Acerolas video](https://www.youtube.com/watch?v=jw00MbIJcrk).
+
+The vertex shader is then told to render many blades of grass using Graphics.DrawProceduralIndirect().
+
+
+
+> **_NOTE:_**
+The vertex shader needs to know how many blades to draw. This is achieved by copying the size of the AppendBuffer into the indirectArgsBuffer of DrawProceduralIndirect() using ComputeBuffer.CopyCount(). 
+
 
 In the vertex shader, we can index into the GrassBlades buffer (that lives on the GPU) to get the parameters for our current blade. The vertex is placed based on a Bezier curve determined by the GrassBlade parameters. Since we are using Bezier curves it is also easy to get the normal for the vertex, crossing the tangent of the curve (easily computable), with the side facing vector. We also animate the blade in the vertex shader by moving points of the Bezier curve based on the windForce. 
 
@@ -93,7 +101,7 @@ struct ClumpParametersStruct {
 These parameters can be used to achieve various effects, like pulling grass towards the center point of its clump, or controlling how much the grass in a clump points in the same direction.
 
 
-### Clever tricks used by Tsushima grass
+### Clever tricks (taken from the Tsushima grass talk)
 
 #### Redistributing vertices of grass towards tip
 
