@@ -8,6 +8,7 @@ Essentially an implementation of the approach used in Ghost of Tsushima, detaile
 
 The grass is quite performant (although there are crucial optimisations that should be added, like LODing). The look and movement of the grass is highly customisable and can be changed using various parameters. 
 
+![Screenshot (4)](https://user-images.githubusercontent.com/52975691/211556726-e6e77c88-584e-4e81-9985-92c911e1d8d5.png)
 
 
 ## Features:
@@ -21,6 +22,28 @@ The grass is quite performant (although there are crucial optimisations that sho
 - **GPU instancing**, allowing for fast rendering of millions of blades
 - **Frustum culling**, Blades outside of the viewing frustum are not rendered
 - **Distance culling**, Fewer blades are rendered at distance, with a smooth transition between near and far
+
+## Videos
+
+Videos of the grass in motion (unfortunately very low quality due to Github's limit on video size).
+
+https://user-images.githubusercontent.com/52975691/211547463-1073548f-4bba-4a1e-b0dc-1690bdc2d1cd.mp4
+
+
+https://user-images.githubusercontent.com/52975691/211549861-9bd80d5b-2317-4518-937f-d0aba6c5a52d.mp4
+
+
+
+https://user-images.githubusercontent.com/52975691/211554795-c2036cdd-9bba-4053-8bfd-650d8facf023.mp4
+
+
+
+
+https://user-images.githubusercontent.com/52975691/211555848-5ef4aecc-e227-4d08-ab03-b912c04775af.mp4
+
+
+
+https://user-images.githubusercontent.com/52975691/211556323-045d8a49-0474-4d55-8208-5969c4ea98db.mp4
 
 ## Overview
 
