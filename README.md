@@ -11,7 +11,7 @@ The grass is quite performant (although there are crucial optimisations that sho
 ![Screenshot (4)](https://user-images.githubusercontent.com/52975691/211556726-e6e77c88-584e-4e81-9985-92c911e1d8d5.png)
 
 
-## Features:
+## Key Features:
 
 - **Shape of blades** determined by cubic Bezier curves
 - **Wind animation** driven by scrolling 2D perlin noise inputted to a sin-based function that modulates various parameters of the grass
@@ -25,7 +25,7 @@ The grass is quite performant (although there are crucial optimisations that sho
 
 ## Videos
 
-Videos of the grass in motion (unfortunately very low quality due to Github's limit on video size).
+Some videos showcasing different styles of grass in motion (unfortunately very low quality due to Github's limit on video size).
 
 https://user-images.githubusercontent.com/52975691/211547463-1073548f-4bba-4a1e-b0dc-1690bdc2d1cd.mp4
 
@@ -124,7 +124,7 @@ struct ClumpParametersStruct {
 These parameters can be used to achieve various effects, like pulling grass towards the center point of its clump, or controlling how much the grass in a clump points in the same direction.
 
 
-### Clever tricks (taken from the Tsushima grass talk)
+### Clever tricks (mostly from the Tsushima grass talk)
 
 #### Redistributing vertices of grass towards tip
 
@@ -136,7 +136,11 @@ The normals of the blade can be tilted outwards to give the appearance of curvat
 
 #### Blending normals to surface normal at distance
 
-Even with temporal anti-aliasing the grass can be very grainy and aliased at distance, due to the constant movement of the blades, and the glossy specular highlights. The normals of the blades can be lerped towards the normal of the underlying terrain at distance. 
+Even with temporal anti-aliasing the grass can be very grainy and aliased at distance, due to the constant movement of the blades, and the glossy specular highlights. To alleviate this, the normals of the blades can be lerped towards the normal of the underlying terrain at distance. This results in less noisiness and graininess because the normals vary less in screen space. 
+
+Some other tricks that I used for distant grass: 
+- Blending the color of distant terrain to match the top color of the grass. This creates the illusion of the grass density at distance being the same, even though it is heavily culled.
+- Fading out the ambient occlusion at the base of the blade at distance. Seeing spots of darkness/shadow in distant regions looked unnatural.
 
 #### Realigning blades verts when viewed side-on
 
