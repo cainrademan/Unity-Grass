@@ -47,12 +47,12 @@ https://user-images.githubusercontent.com/52975691/211556323-045d8a49-0474-4d55-
 
 ## Overview
 
-A compute shader is run: each thread of the compute shader computes a single blade of grass. First, a position is computed: the blades are evenly spread across the terrain and slightly jittered. We check if the grass blade should be rendered by doing frustum and distance culling on the position. If the blade should be rendered, we continue, else we drop out. Each blade belongs to a particular clump. Each clump type (ClumpParametersStruct) has its own set of artist-authored parameters that determine things like the height, bend, and color of the blade. The computed parameters for the blade are packed into a GrassBlade struct and added to an AppendBuffer. 
+A compute shader is run: each thread of the compute shader computes a single blade of grass. First, a position is computed: the blades are evenly spread across the terrain and slightly jittered. We check if the grass blade should be rendered by doing frustum and distance culling on the position. If the blade should be rendered, we continue, else we drop out. Each blade belongs to a particular clump. Each clump type has its own set of artist-authored parameters that determine things like the height, bend, and color of the blade. The computed parameters for the blade are packed into a GrassBlade struct and added to an AppendBuffer. 
 
 > **_NOTE:_**
-It is most convenient to use an AppendBuffer as opposed to a RWStructuredBuffer because the number of blades rendered varies per frame due to frustum and distance culling. It is possible to use a RWStructuredBuffer though as demonstrated in [Acerolas video](https://www.youtube.com/watch?v=jw00MbIJcrk).
+It is most convenient to use an AppendBuffer as opposed to a RWStructuredBuffer because the number of blades rendered varies per frame due to frustum and distance culling. It is possible to use a RWStructuredBuffer though as demonstrated in [Acerolas video about grass rendering](https://www.youtube.com/watch?v=jw00MbIJcrk).
 
-The vertex shader is then told to render many blades of grass using Graphics.DrawProceduralIndirect().
+The vertex shader is then told to render many blades of grass using Graphics.DrawProceduralIndirect(). The blades of grass were modelled in Blender and have data packed into the vertex colors, such as how far along the blade the vertex is, and which side of the blade its on. 
 
 
 
@@ -98,7 +98,7 @@ The wind animation is driven by scrolling 2D perlin noise. The noise is inputted
 
 ### Grass clumping: 
 
-The way the grass clumps together in the field can be controlled, for a less uniform, more organic look. This is meant to mimic the way grass grows patches in nature.
+The way the grass clumps together in the field can be controlled, for a less uniform, more organic look. This is meant to mimic the way grass grows in patches in nature.
 
 The grass is divided into cells generated using a procedural Voronoi algorithm. Each cell is assigned a clump id indexing into the list of user defined clumps. 
 
