@@ -10,9 +10,9 @@ The grass is quite performant (although there are crucial optimisations that sho
 
 ![Screenshot (4)](https://user-images.githubusercontent.com/52975691/211556726-e6e77c88-584e-4e81-9985-92c911e1d8d5.png)
 
-<img src = "https://user-images.githubusercontent.com/52975691/212654275-0cc1cb56-3e68-475a-be8d-7b0a78378228.png" width ="500" /> <img src = "https://user-images.githubusercontent.com/52975691/212654303-5e9fba2c-40c2-4017-88dd-ef455d575a4f.png" width ="500" />
+<img src = "https://user-images.githubusercontent.com/52975691/212654275-0cc1cb56-3e68-475a-be8d-7b0a78378228.png" width ="480" /> <img src = "https://user-images.githubusercontent.com/52975691/212654303-5e9fba2c-40c2-4017-88dd-ef455d575a4f.png" width ="480" />
 
-<img src = "https://user-images.githubusercontent.com/52975691/212654333-c546aaf9-8883-437e-b208-f92c74dd3a3f.png" width ="500" /> <img src = "https://user-images.githubusercontent.com/52975691/212654378-c91c0c3a-d840-4e8b-a0ce-565c2d80d604.png" width ="500" />
+<img src = "https://user-images.githubusercontent.com/52975691/212654333-c546aaf9-8883-437e-b208-f92c74dd3a3f.png" width ="480" /> <img src = "https://user-images.githubusercontent.com/52975691/212654378-c91c0c3a-d840-4e8b-a0ce-565c2d80d604.png" width ="480" />
 
 
 
