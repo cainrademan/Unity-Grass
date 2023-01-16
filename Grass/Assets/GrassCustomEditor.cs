@@ -47,34 +47,34 @@ public class GrassCustomEditor : Editor
 
             Debug.Log("Gradient map saved!");
         }
-        if (GUILayout.Button("Make Blade Gradient Map"))
-        {
-            grassScript.testing = false;
-            if (!AssetDatabase.IsValidFolder("Assets/GradientMaps"))
-            {
-                AssetDatabase.CreateFolder("Assets/", "GradientMaps");
-                AssetDatabase.SaveAssets();
-            }
-            if (!Directory.Exists(Application.dataPath + "GradientMaps"))
-            {
-                Directory.CreateDirectory(Application.dataPath + "/GradientMaps/");
-                GradientMapper.totalMaps = 0;
-            }
-            else
-            {
-                GradientMapper.totalMaps = Directory.GetFiles(Application.dataPath + "/GradientMaps/").Length;
-            }
+        //if (GUILayout.Button("Make Blade Gradient Map"))
+        //{
+        //    grassScript.testing = false;
+        //    if (!AssetDatabase.IsValidFolder("Assets/GradientMaps"))
+        //    {
+        //        AssetDatabase.CreateFolder("Assets/", "GradientMaps");
+        //        AssetDatabase.SaveAssets();
+        //    }
+        //    if (!Directory.Exists(Application.dataPath + "GradientMaps"))
+        //    {
+        //        Directory.CreateDirectory(Application.dataPath + "/GradientMaps/");
+        //        GradientMapper.totalMaps = 0;
+        //    }
+        //    else
+        //    {
+        //        GradientMapper.totalMaps = Directory.GetFiles(Application.dataPath + "/GradientMaps/").Length;
+        //    }
 
-            byte[] bytes = grassScript.texture2.EncodeToPNG();
-            while (File.Exists(Application.dataPath + "/GradientMaps/gradient_map_" + GradientMapper.totalMaps.ToString() + ".png"))
-            {
-                GradientMapper.totalMaps++;
-            }
-            File.WriteAllBytes(Application.dataPath + "/GradientMaps/gradient_map_" + GradientMapper.totalMaps.ToString() + ".png", bytes);
-            AssetDatabase.Refresh();
+        //    byte[] bytes = grassScript.texture2.EncodeToPNG();
+        //    while (File.Exists(Application.dataPath + "/GradientMaps/gradient_map_" + GradientMapper.totalMaps.ToString() + ".png"))
+        //    {
+        //        GradientMapper.totalMaps++;
+        //    }
+        //    File.WriteAllBytes(Application.dataPath + "/GradientMaps/gradient_map_" + GradientMapper.totalMaps.ToString() + ".png", bytes);
+        //    AssetDatabase.Refresh();
 
-            Debug.Log("Gradient map saved!");
-        }
+        //    Debug.Log("Gradient map saved!");
+        //}
 
 
 

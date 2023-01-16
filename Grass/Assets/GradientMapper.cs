@@ -18,7 +18,6 @@ public class GradientMapper : MonoBehaviour
     [Header("Enable testing")]
     public bool testing = false;
 
-    //private SpriteRenderer spriteRenderer;
     public Material material;
 
     [HideInInspector]
@@ -26,19 +25,6 @@ public class GradientMapper : MonoBehaviour
 
     public static int totalMaps = 0;
 
-    //private void OnEnable()
-    //{
-    //    spriteRenderer = GetComponent<SpriteRenderer>();
-    //    if (spriteRenderer == null)
-    //    {
-    //        Debug.LogWarning("No sprite renderer on this game object! Removing GradientMapper");
-    //        DestroyImmediate(this);
-    //    }
-    //    else
-    //    {
-    //        material = spriteRenderer.sharedMaterial;
-    //    }
-    //}
 
     void Update()
     {

@@ -25,16 +25,6 @@ struct GrassBlade {
 
 
 struct ClumpParametersStruct {
-//Base height : float
-//Height random : float
-//Base width : float
-//Width random : float
-//Base tilt : float
-//Tilt random : float
-//Base bend : float
-//Bend random : float
-//float4 clumpColor;
-//float4 clumpColor;
 float pullToCentre;
 float pointInSameDirection;
 float baseHeight;
@@ -47,30 +37,19 @@ float baseBend;
 float bendRandom;
 };
 
-//Texture2D CameraDepthTexture;
-//SamplerState MyLinearClampSampler;
-//Texture2D<float4> DepthTexture;
+
 //uniform Texture2D<float4> _CameraDepthTexture;
-//Texture2D<float4> DepthTexture;
+
 
 
 StructuredBuffer<ClumpParametersStruct> _ClumpParameters;
 
-//RWStructuredBuffer<GrassBlade> _GrassBlades;
 AppendStructuredBuffer<GrassBlade> _GrassBlades;
 
 uint _Resolution;
 float _GrassSpacing;
 float _JitterStrength;
 float3 _PlaneCentre;
-//float _GrassBaseHeight = 1;
-//float _GrassHeightRandom = 0.1;
-//float _GrassBaseWidth = 2;
-//float _GrassWidthRandom = 0.011/2;
-//float _GrassBaseTilt = 0.05;
-//float _GrassTiltRandom = 0.05/2;
-//float _GrassBaseBend = 0.01;
-//float _GrassBendRandom = 0.01;
 
 float _HeightMapScale;
 float _HeightMapMultiplier;
@@ -80,13 +59,8 @@ float _FrustumCullEdgeOffset;
 
 float _DistanceCullStartDist;
 float _DistanceCullEndDist;
-//float _DistanceCullC;
-//float _DistanceCullM;
+
 float _DistanceCullMinimumGrassAmount;
-float _Test;
-float _Test2;
-float _Test3;
-float _Test4;
 float3 _WSpaceCameraPos;
 float _WindTexContrast;
 
@@ -106,9 +80,6 @@ float _WindControl;
 float _BigWindSpeed;
 float _BigWindRotateAmount;
 float _BigWindScale;
-float _SmallWindSpeed;
-float _SmallWindScale;
-//float _SmallWindRotateAmount;
 float _ClumpColorUniformity;
 
 float4 _Time;
@@ -127,16 +98,10 @@ float _NumClumpParameters;
 Texture2D ClumpGradientMap; 
 SamplerState samplerClumpGradientMap;
 
-Texture2D BladeGradientMap;
-SamplerState samplerBladeGradientMap;
+//Texture2D BladeGradientMap;
+//SamplerState samplerBladeGradientMap;
 //SamplerState my_linear_mirror_sample;
 
-
-uint _2DIdTo1D(uint3 id){
-
-    return id.x + id.y * _Resolution;
-
-}
 
 
         float2 hashwithoutsine22(float2 p)
@@ -176,7 +141,6 @@ uint _2DIdTo1D(uint3 id){
 
         //distanceSmoothStep *= viewAngleModulation;
 
-
         //float combined = viewAngleCull * _DistanceCullM +(1-distanceSmoothStep);
 
         return hash > 1-distanceSmoothStep ? 1 : 0;
@@ -197,16 +161,6 @@ uint _2DIdTo1D(uint3 id){
     || clipPos.y > clipPos.w)
         ? 0: 1;
 }
-
-uint test(float3 pos)
-{
-    return (pos.x > 5
-    || pos.x < -5
-    || pos.z>5
-    || pos.z<-5)
-        ? 0: 1;
-}
-
 
     float3 getTransformedVertex(float3 vertex){
     
@@ -242,48 +196,30 @@ uint test(float3 pos)
 //    o.zw = pos.zw;
 //    return o;
 //}
-float2 slerp(float2 start, float2 end, float percent)
-{
-     // Dot product - the cosine of the angle between 2 vectors.
-     float d = dot(start, end);     
-     // Clamp it to be in the range of Acos()
-     // This may be unnecessary, but floating point
-     // precision can be a fickle mistress.
-     d = clamp(d, -1.0, 1.0);
-     // Acos(dot) returns the angle between start and end,
-     // And multiplying that by percent returns the angle between
-     // start and the final result.
-     float theta = acos(d)*percent;
-     float2 RelativeVec = normalize(end - start*d); // Orthonormal basis
-     // The final result.
-     return ((start*cos(theta)) + (RelativeVec*sin(theta)));
 
-     }
+//     float BlendMode_Overlay(float base, float blend)
+//{
+//	return (base <= 0.5) ? 2*base*blend : 1 - 2*(1-base)*(1-blend);
+//}
 
+//float3 BlendMode_Overlay(float3 base, float3 blend)
+//{
+//	return float3(  BlendMode_Overlay(base.r, blend.r), 
+//					BlendMode_Overlay(base.g, blend.g), 
+//					BlendMode_Overlay(base.b, blend.b) );
+//}
 
-     float BlendMode_Overlay(float base, float blend)
-{
-	return (base <= 0.5) ? 2*base*blend : 1 - 2*(1-base)*(1-blend);
-}
+//float BlendMode_LinearDodge(float base, float blend)
+//{
+//	return min(1, base + blend);
+//}
 
-float3 BlendMode_Overlay(float3 base, float3 blend)
-{
-	return float3(  BlendMode_Overlay(base.r, blend.r), 
-					BlendMode_Overlay(base.g, blend.g), 
-					BlendMode_Overlay(base.b, blend.b) );
-}
-
-float BlendMode_LinearDodge(float base, float blend)
-{
-	return min(1, base + blend);
-}
-
-float3 BlendMode_LinearDodge(float3 base, float3 blend)
-{
-	return float3(  BlendMode_LinearDodge(base.r, blend.r), 
-					BlendMode_LinearDodge(base.g, blend.g), 
-					BlendMode_LinearDodge(base.b, blend.b) );
-}
+//float3 BlendMode_LinearDodge(float3 base, float3 blend)
+//{
+//	return float3(  BlendMode_LinearDodge(base.r, blend.r), 
+//					BlendMode_LinearDodge(base.g, blend.g), 
+//					BlendMode_LinearDodge(base.b, blend.b) );
+//}
 
 [numthreads(8,8,1)]
 void Main (uint3 id : SV_DispatchThreadID)
@@ -428,27 +364,11 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             float angle = atan2(bladeFacing.y,bladeFacing.x);
 
-            //----Attempt to tilt blades that are orthogonal to camera
-            //I think it is better to do this in view space
-
-            //float d = distance(raisedVertex, _WSpaceCameraPos);
-
-            //float s = smoothstep(1.71, 1.71+10, d);
-
-            
-
-            //float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
-
-            //float orthogonalAngleOffset = smoothstep(_Test2, 0, viewAlignment);
-
-            //orthogonalAngleOffset*=s;
-
-            //bladeFacing = lerp(bladeFacing,posToCam.xz, orthogonalAngleOffset);
 
            //float grassFacingAngle = atan2(bladeFacing.y,bladeFacing.x);
 
 
-                //---Calculate wind, comprised of big wind for overall motion and small wind for smaller details
+                //---Calculate wind
                 
 
                 float2 bigWindUV = worldUV * (_BigWindScale);
@@ -456,11 +376,7 @@ void Main (uint3 id : SV_DispatchThreadID)
                 bigWindUV += _Time.y * globalWindFacingVec *_BigWindSpeed;
 
                 //Alternate method for big wind using same method as small wind
-                //float bigWind = (tex2Dlod( _WindTex, float4(bigWindUV.x, bigWindUV.y, 0,0)).x   );
-                
-                //float bigWind = WindTex.SampleLevel(samplerWindTex, bigWindUV, 0).x*2-1;              
-
-                //float bigWindRotateAngle = (bigWind)* 3.14159 * _BigWindRotateAmount;
+               
 
                 float bigWind = WindTex.SampleLevel(samplerWindTex, bigWindUV, 0).x;
 
@@ -494,32 +410,12 @@ void Main (uint3 id : SV_DispatchThreadID)
 
                 angle += bigWindRotateAngle;
 
-                //float2 newFacing = float2(cos(angle), sin(angle));
+                
 
             blade.rotAngle = angle;
             blade.hash = rand(id.xyx);
 
 
-            
-
-            //READ FROM CLUMP PARAMETERS
-
-                        //float baseHeight = _ClumpParameters[0].baseHeight;
-            //float heightRandom = _ClumpParameters[0].heightRandom;
-            //float baseWidth = _ClumpParameters[0].baseWidth;
-            //float widthRandom = _ClumpParameters[0].widthRandom;
-            //float baseTilt = _ClumpParameters[0].baseTilt;
-            //float tiltRandom = _ClumpParameters[0].tiltRandom;
-            //float baseBend = _ClumpParameters[0].baseBend;
-            //float bendRandom = _ClumpParameters[0].bendRandom;
-            //float baseHeight = _ClumpParameters[1].baseHeight;
-            //float heightRandom = _ClumpParameters[1].heightRandom;
-            //float baseWidth = _ClumpParameters[1].baseWidth;
-            //float widthRandom = _ClumpParameters[1].widthRandom;
-            //float baseTilt = _ClumpParameters[1].baseTilt;
-            //float tiltRandom = _ClumpParameters[1].tiltRandom;
-            //float baseBend = _ClumpParameters[1].baseBend;
-            //float bendRandom = _ClumpParameters[1].bendRandom;
 
             blade.height = baseHeight + remap01_neg11(  rand(id.xxy) ) * heightRandom;
             blade.width = baseWidth + remap01_neg11(  rand(id.yxx) ) * widthRandom;
@@ -527,13 +423,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.tilt = baseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * tiltRandom;
             blade.bend = baseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * bendRandom;
 
-            //blade.height = _GrassBaseHeight + remap01_neg11(  rand(id.xxy) ) * _GrassHeightRandom;
-            //blade.width = _GrassBaseWidth + remap01_neg11(  rand(id.yxx) ) * _GrassWidthRandom;
-            ////0-1 value, controlling the vertical component of the p3 point in the bezier curve, horizontal can be derived from pythag.
-            //blade.tilt = _GrassBaseTilt + remap01_neg11(  rand(id.xyx * float3(1.12, 3.3, 17.6)) ) * _GrassTiltRandom;
-            //blade.bend = _GrassBaseBend + remap01_neg11(  rand(id.xyy * float3(12.32, 0.23, 3.39)) ) * _GrassBendRandom;
             blade.surfaceNorm = norm;
-            //blade.color = clumpParamsIndex.xxx;
             float distanceToCentre = distance(raisedVertex.xz,  clumpCentre);
 
             float atten = 1-smoothstep(_CentreColorSmoothStepLower,_CentreColorSmoothStepUpper , distanceToCentre);
@@ -550,12 +440,8 @@ void Main (uint3 id : SV_DispatchThreadID)
 
             blade.color = finalColor.xyz;
             
-            //blade.color = float3(clumpCentre.xy,0);
-            //blade.color =  clumpHash.xxx;
-            //blade.color =  clumpParamsIndex.xxx;
-            //blade.color = float3(sharedClumpFacing.xy,0);
             float viewAlignment = abs(dot(bladeFacing, normalize(posToCam.xz)));
-            float sideBend = smoothstep(_Test, 0, viewAlignment)*_Test2;
+            float sideBend = smoothstep(0.3, 0, viewAlignment)*1.5;
             //float sideBend = viewAlignment < _Test  ? _Test2 : 0;
             
 
@@ -564,8 +450,7 @@ void Main (uint3 id : SV_DispatchThreadID)
             blade.clumpColorDistanceFade = atten;
             float windForce = saturate(  ((bigWind - 0.5) * max(_WindTexContrast, 0)) + 0.5f   );
             blade.windForce = (windForce);
-            //blade.windForce = (1+1)/2;
-            //_GrassBlades[_2DIdTo1D(id)] = blade;
+
             _GrassBlades.Append(blade);
 
         }
