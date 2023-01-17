@@ -1,5 +1,6 @@
 # Unity-Grass
 
+
 Grass rendering experiment in Unity. Uses an HLSL compute shader and graphics shader to draw procedurally generated blades on the GPU.  
 
 Essentially an implementation of the approach used in Ghost of Tsushima, detailed in this incredible talk: 
@@ -7,6 +8,9 @@ Essentially an implementation of the approach used in Ghost of Tsushima, detaile
 ](https://www.youtube.com/watch?v=Ibe1JBF5i5Y).
 
 The grass is quite performant (although there are crucial optimisations that should be added, like LODing). The look and movement of the grass is highly customisable and can be changed using various parameters. 
+
+> **_NOTE:_**
+This shader is not intended for commercial use. It would probably be difficult to do so anyway, as it is tailored to my needs. Nevertheless, I have put the code up, with explanation, as part of my portfolio. 
 
 ![Screenshot (4)](https://user-images.githubusercontent.com/52975691/211556726-e6e77c88-584e-4e81-9985-92c911e1d8d5.png)
 
